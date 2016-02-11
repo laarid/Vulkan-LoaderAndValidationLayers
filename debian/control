@@ -1,0 +1,32 @@
+Source: vulkan-loader
+Priority: optional
+Maintainer: Timo Aaltonen <tjaalton@debian.org>
+Build-Depends: debhelper (>= 9),
+ cmake,
+ glslang-utils,
+ libxcb1-dev,
+ pkg-config,
+ quilt,
+Standards-Version: 3.9.6
+Section: libs
+Homepage: https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers
+Vcs-Git: git://anonscm.debian.org/git/pkg-xorg/lib/vulkan-loader.git
+Vcs-Browser: https://anonscm.debian.org/cgit/pkg-xorg/lib/vulkan-loader.git
+
+Package: libvulkan1
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Vulkan loader library
+ The Loader implements the main VK library. It handles layer management and
+ driver management. The loader fully supports multi-gpu operation. As part of
+ this, it dispatches API calls to the correct driver, and to the correct
+ layers, based on the GPU object selected by the application.
+
+Package: vulkan-utils
+Architecture: any
+Section: graphics
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ libvulkan1,
+Description: Miscellaneous Vulkan utilities
+ This package provides a few demo programs to test Vulkan functionality,
+ including vkcube, vktri and vulkaninfo.

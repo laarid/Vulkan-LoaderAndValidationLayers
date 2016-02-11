@@ -1,0 +1,34 @@
+#!/usr/bin/make -f
+
+# see EXAMPLES in dpkg-buildflags(1) and read /usr/share/dpkg/*
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/default.mk
+
+# main packaging script based on dh7 syntax
+%:
+	dh $@ --with quilt --builddirectory=build/
+
+override_dh_clean:
+	dh_clean
+	rm -rf __pycache__
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+	-DCMAKE_LIBRARY_PATH=$(DEB_HOST_MULTIARCH)
+
+override_dh_auto_install:
+	mkdir -p debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	mkdir -p debian/tmp/usr/bin
+	cp -P build/loader/libvulkan*.so.* debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	install -T build/demos/cube debian/tmp/usr/bin/vkcube
+	install -T build/demos/tri debian/tmp/usr/bin/vktri
+	install build/demos/vulkaninfo debian/tmp/usr/bin
+
+override_dh_install:
+	dh_install --fail-missing
+
+gentarball: SOURCE=vulkan-loader
+gentarball: UV=$(shell dpkg-parsechangelog|awk '/^Version:/ {print $$2}'|sed 's/-.*$$//')
+gentarball:
+	git archive --format=tar upstream-unstable-trim --prefix=$(SOURCE)-$(UV)/ | gzip -9 > ../$(SOURCE)_$(UV).orig.tar.gz
+
