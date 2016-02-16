@@ -1,6 +1,7 @@
 Source: vulkan-loader
 Priority: optional
-Maintainer: Timo Aaltonen <tjaalton@debian.org>
+Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+Uploaders: Timo Aaltonen <tjaalton@debian.org>
 Build-Depends: debhelper (>= 9),
  cmake,
  glslang-utils,
