@@ -1,2 +1,2 @@
-use-packaged-glslangvalidator.diff
 trim-build.diff
+demos-dont-build-tri-or-cube.diff

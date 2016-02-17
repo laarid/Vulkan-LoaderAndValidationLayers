@@ -20,8 +20,6 @@ override_dh_auto_install:
 	mkdir -p debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
 	mkdir -p debian/tmp/usr/bin
 	cp -P build/loader/libvulkan*.so.* debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
-	install -T build/demos/cube debian/tmp/usr/bin/vkcube
-	install -T build/demos/tri debian/tmp/usr/bin/vktri
 	install build/demos/vulkaninfo debian/tmp/usr/bin
 
 override_dh_install:
