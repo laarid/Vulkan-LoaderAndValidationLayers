@@ -14,12 +14,11 @@ override_dh_clean:
 
 override_dh_auto_configure:
 	dh_auto_configure -- \
-	-DCMAKE_LIBRARY_PATH=$(DEB_HOST_MULTIARCH)
+	-DCMAKE_INSTALL_LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH)
 
 override_dh_auto_install:
-	mkdir -p debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
+	dh_auto_install
 	mkdir -p debian/tmp/usr/bin
-	cp -P build/loader/libvulkan*.so.* debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/
 	install build/demos/vulkaninfo debian/tmp/usr/bin
 
 override_dh_install:
