@@ -1,4 +1,4 @@
-Source: vulkan-loader
+Source: vulkan
 Priority: optional
 Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
 Uploaders: Timo Aaltonen <tjaalton@debian.org>
@@ -10,8 +10,8 @@ Build-Depends: debhelper (>= 9),
 Standards-Version: 3.9.6
 Section: libs
 Homepage: https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers
-Vcs-Git: git://anonscm.debian.org/git/pkg-xorg/lib/vulkan-loader.git
-Vcs-Browser: https://anonscm.debian.org/cgit/pkg-xorg/lib/vulkan-loader.git
+Vcs-Git: git://anonscm.debian.org/git/pkg-xorg/lib/vulkan.git
+Vcs-Browser: https://anonscm.debian.org/cgit/pkg-xorg/lib/vulkan.git
 
 Package: libvulkan1
 Architecture: any

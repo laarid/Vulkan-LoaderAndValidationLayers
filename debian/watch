@@ -1,6 +1,6 @@
 version=3
 
-opts="filenamemangle=s/(?:.*?)?v?(\d[\d.]*)\.tar\.gz/vulkan-loader-$1.tar.gz/" \
+opts="filenamemangle=s/(?:.*?)?v?(\d[\d.]*)\.tar\.gz/vulkan-$1.tar.gz/" \
  https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers/tags (?:.*?/)sdk-(\d[\d.]*)\.tar\.gz
 
 #         https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers/tags (?:.*?/)?v?(\d[\d.]*)\.tar\.gz

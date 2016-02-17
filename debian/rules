@@ -32,7 +32,7 @@ override_dh_auto_install:
 override_dh_install:
 	dh_install --fail-missing
 
-gentarball: SOURCE=vulkan-loader
+gentarball: SOURCE=vulkan
 gentarball: UV=$(shell dpkg-parsechangelog|awk '/^Version:/ {print $$2}'|sed 's/-.*$$//')
 gentarball:
 	git archive --format=tar upstream-unstable-trim --prefix=$(SOURCE)-$(UV)/ | gzip -9 > ../$(SOURCE)_$(UV).orig.tar.gz
