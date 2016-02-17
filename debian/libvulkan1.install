@@ -1,1 +1,5 @@
+usr/bin/vulkaninfo
 usr/lib/*/lib*.so.*
+usr/lib/*/liblayer_utils.so
+usr/lib/*/libVk*.so
+usr/share/vulkan

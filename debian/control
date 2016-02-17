@@ -21,12 +21,19 @@ Description: Vulkan loader library
  driver management. The loader fully supports multi-gpu operation. As part of
  this, it dispatches API calls to the correct driver, and to the correct
  layers, based on the GPU object selected by the application.
+ .
+ This package includes the loader library and vulkaninfo binary.
 
-Package: vulkan-utils
+Package: libvulkan-dev
+Section: libdevel
 Architecture: any
-Section: graphics
-Depends: ${shlibs:Depends}, ${misc:Depends},
- libvulkan1,
-Description: Miscellaneous Vulkan utilities
- This package provides a few demo programs to test Vulkan functionality,
- including vkcube, vktri and vulkaninfo.
+Depends:
+ libvulkan1 (= ${binary:Version}),
+ ${misc:Depends},
+Description: Vulkan loader library -- development files
+ The Loader implements the main VK library. It handles layer management and
+ driver management. The loader fully supports multi-gpu operation. As part of
+ this, it dispatches API calls to the correct driver, and to the correct
+ layers, based on the GPU object selected by the application.
+ .
+ This package includes files needed for development.

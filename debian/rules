@@ -17,7 +17,17 @@ override_dh_auto_configure:
 	-DCMAKE_INSTALL_LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH)
 
 override_dh_auto_install:
-	dh_auto_install
+	dh_auto_install --destdir=debian/tmp
+
+	mkdir -p debian/tmp/usr/include
+	cp -rp include/vulkan debian/tmp/usr/include
+
+	mkdir -p debian/tmp/usr/share/vulkan/explicit_layer.d \
+		 debian/tmp/usr/share/vulkan/implicit_layer.d
+	for i in $(shell cd layers/linux/; ls *.json) ; do \
+		sed 's@./@@' layers/linux/$$i > \
+		debian/tmp/usr/share/vulkan/explicit_layer.d/$$i \
+	; done
 
 override_dh_install:
 	dh_install --fail-missing

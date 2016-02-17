@@ -3,3 +3,4 @@ demos-dont-build-tri-or-cube.diff
 loader-add-install-rule.diff
 demos-add-install-rule.diff
 layers-use-local-spirv-hpp.diff
+layers-install-to-cmake-install-libdir.diff
