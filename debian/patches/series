@@ -1,7 +1,8 @@
 trim-build.diff
-demos-dont-build-tri-or-cube.diff
 loader-add-install-rule.diff
 demos-add-install-rule.diff
 layers-use-local-spirv-hpp.diff
 layers-install-to-cmake-install-libdir.diff
 layers-dont-set-an-rpath.diff
+demos-use-prebuilt-spvs.diff
+demos-read-from-installed-paths.diff
