@@ -7,6 +7,7 @@ Build-Depends: debhelper (>= 9),
  libwayland-dev,
  libxcb1-dev,
  pkg-config,
+ python3,
  quilt,
 Standards-Version: 3.9.6
 Section: libs
