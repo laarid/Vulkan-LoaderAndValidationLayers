@@ -29,10 +29,6 @@ override_dh_auto_install:
 		debian/tmp/usr/share/vulkan/explicit_layer.d/$$i \
 	; done
 
-	install -T build/demos/cube debian/tmp/usr/bin/vulkancube
-	install -T build/demos/tri debian/tmp/usr/bin/vulkantri
-	install -T demos/lunarg.ppm debian/tmp/usr/share/vulkan/cube.ppm
-
 override_dh_install:
 	dh_install --fail-missing
 

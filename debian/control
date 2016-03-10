@@ -45,5 +45,4 @@ Section: graphics
 Depends: ${shlibs:Depends}, ${misc:Depends},
  libvulkan1,
 Description: Miscellaneous Vulkan utilities
- This package provides a few demo programs to test Vulkan functionality,
- including vkcube, vktri and vulkaninfo.
+ This package provides utilities for Vulkan, including vulkaninfo.

@@ -1,6 +1,1 @@
-usr/bin/vulkancube
 usr/bin/vulkaninfo
-usr/bin/vulkantri
-usr/share/vulkan/cube.ppm
-debian/local/cube-*.spv		usr/share/vulkan
-debian/local/tri-*.spv		usr/share/vulkan
