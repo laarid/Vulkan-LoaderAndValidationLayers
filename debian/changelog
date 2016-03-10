@@ -1,5 +1,5 @@
-vulkan (1.0.3.1+dfsg1-1) UNRELEASED; urgency=low
+vulkan (1.0.3.1+dfsg1-1) unstable; urgency=low
 
   * Initial release (Closes: #814922)
 
- -- Timo Aaltonen <tjaalton@debian.org>  Fri, 22 Jan 2016 00:37:00 +0200
+ -- Timo Aaltonen <tjaalton@debian.org>  Thu, 10 Mar 2016 14:08:35 +0200
