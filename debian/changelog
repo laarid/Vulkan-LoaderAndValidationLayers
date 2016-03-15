@@ -3,6 +3,7 @@ vulkan (1.0.5.0+dfsg1-1) UNRELEASED; urgency=medium
   * New upstream release.
   * patches: Refreshed.
   * Don't build smoke demo, needs glslang like tri/cube.
+  * control: Add libx11-dev and python3-lxml to build-depends.
 
  -- Timo Aaltonen <tjaalton@debian.org>  Tue, 15 Mar 2016 15:27:12 +0200
 
