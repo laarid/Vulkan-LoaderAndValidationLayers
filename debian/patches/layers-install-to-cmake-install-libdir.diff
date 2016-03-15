@@ -6,7 +6,7 @@ Date:   Wed Feb 10 15:11:54 2016 -0500
 
 --- a/layers/CMakeLists.txt
 +++ b/layers/CMakeLists.txt
-@@ -70,7 +70,7 @@ else()
+@@ -77,7 +77,7 @@ else()
      target_link_Libraries(VkLayer_${target} layer_utils)
  	add_dependencies(VkLayer_${target} generate_vk_layer_helpers)
  	set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
@@ -15,7 +15,7 @@ Date:   Wed Feb 10 15:11:54 2016 -0500
      endmacro()
  endif()
  
-@@ -144,7 +144,7 @@ if (WIN32)
+@@ -156,7 +156,7 @@ if (WIN32)
      set_target_properties(layer_utils_static PROPERTIES OUTPUT_NAME layer_utils)
      target_link_libraries(layer_utils)
  else()
@@ -23,4 +23,4 @@ Date:   Wed Feb 10 15:11:54 2016 -0500
 +    install(TARGETS layer_utils DESTINATION ${CMAKE_INSTALL_LIBDIR})
  endif()
  
- add_vk_layer(draw_state draw_state.cpp vk_layer_debug_marker_table.cpp vk_layer_table.cpp)
+ add_vk_layer(draw_state draw_state.cpp vk_layer_table.cpp)

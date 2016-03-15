@@ -1,8 +1,11 @@
 Description: Add an install rule for vulkaninfo
 --- a/demos/CMakeLists.txt
 +++ b/demos/CMakeLists.txt
-@@ -93,3 +93,4 @@ else()
-     add_executable(vulkaninfo WIN32 vulkaninfo.c)
- endif()
+@@ -89,6 +89,7 @@ endif()
+ 
+ add_executable(vulkaninfo vulkaninfo.c)
  target_link_libraries(vulkaninfo ${LIBRARIES})
 +install(TARGETS vulkaninfo RUNTIME DESTINATION /usr/bin)
+ 
+ 
+ add_subdirectory(smoke)

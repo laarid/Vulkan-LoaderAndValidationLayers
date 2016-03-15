@@ -1,3 +1,10 @@
+vulkan (1.0.5.0+dfsg1-1) UNRELEASED; urgency=medium
+
+  * New upstream release.
+  * patches: Refreshed.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Tue, 15 Mar 2016 15:27:12 +0200
+
 vulkan (1.0.3.1+dfsg1-1) unstable; urgency=low
 
   * Initial release (Closes: #814922)
