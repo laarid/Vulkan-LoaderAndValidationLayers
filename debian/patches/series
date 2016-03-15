@@ -1,5 +1,5 @@
 trim-build.diff
-demos-dont-build-tri-or-cube.diff
+demos-dont-build-tri-or-cube-or-smoke.diff
 loader-add-install-rule.diff
 demos-add-install-rule.diff
 layers-use-local-spirv-hpp.diff

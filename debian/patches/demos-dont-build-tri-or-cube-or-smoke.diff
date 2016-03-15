@@ -10,10 +10,11 @@ Date:   Tue Feb 16 10:05:25 2016 -0500
 
 --- a/demos/CMakeLists.txt
 +++ b/demos/CMakeLists.txt
-@@ -90,26 +90,6 @@ endif()
+@@ -89,27 +89,3 @@ endif()
+ 
  add_executable(vulkaninfo vulkaninfo.c)
  target_link_libraries(vulkaninfo ${LIBRARIES})
- 
+-
 -if(UNIX)
 -    add_executable(tri tri.c ${CMAKE_BINARY_DIR}/demos/tri-vert.spv ${CMAKE_BINARY_DIR}/demos/tri-frag.spv)
 -else()
@@ -34,6 +35,6 @@ Date:   Tue Feb 16 10:05:25 2016 -0500
 -    add_executable(cube WIN32 cube.c ${CMAKE_BINARY_DIR}/demos/cube-vert.spv ${CMAKE_BINARY_DIR}/demos/cube-frag.spv)
 -    target_link_libraries(cube ${LIBRARIES} )
 -endif()
- 
- add_subdirectory(smoke)
- 
+-
+-add_subdirectory(smoke)
+-
