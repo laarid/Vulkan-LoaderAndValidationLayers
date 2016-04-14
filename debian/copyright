@@ -1,8 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: Vulkan-LoaderAndValidationLayers
 Source: https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers
-
-Files-Excluded: tests/gtest-* windowsruntimeinstaller
+Files-Excluded: tests/gtest-* windowsRuntimeInstaller
 
 Files: *
 Copyright: 2015-2016 Valve Corporation
