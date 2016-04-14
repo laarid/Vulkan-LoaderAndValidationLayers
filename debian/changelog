@@ -10,6 +10,7 @@ vulkan (1.0.8.0+dfsg1-1) UNRELEASED; urgency=medium
   * watch: Match more tags.
   * copyright: Add buildAndroid to Files-Excluded.
   * control: Bump policy to 3.9.7, no changes.
+  * control: Use https for Vcs-Git.
 
  -- Timo Aaltonen <tjaalton@debian.org>  Tue, 15 Mar 2016 15:27:12 +0200
 
