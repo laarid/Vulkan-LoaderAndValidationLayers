@@ -4,11 +4,9 @@ Date:   Wed Feb 10 14:52:34 2016 -0500
 
     layers: Don't set an rpath
 
-diff --git a/layers/CMakeLists.txt b/layers/CMakeLists.txt
-index 0406a57..daa0069 100644
 --- a/layers/CMakeLists.txt
 +++ b/layers/CMakeLists.txt
-@@ -26,9 +26,6 @@ set(LAYER_JSON_FILES
+@@ -31,9 +31,6 @@ set(LAYER_JSON_FILES
      VkLayer_device_limits
      )
  
