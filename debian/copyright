@@ -18,7 +18,7 @@ Files: debian/*
 Copyright: 2016 Timo Aaltonen <tjaalton@debian.org>
 License: MIT
 
-Files: debian/local/spirv.hpp
+Files: debian/SPIRV/spirv.hpp
 Copyright: 2014-2016 The Khronos Group Inc.
 License: MIT
 
