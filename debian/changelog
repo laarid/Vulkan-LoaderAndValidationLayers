@@ -8,6 +8,7 @@ vulkan (1.0.8.0+dfsg1-1) UNRELEASED; urgency=medium
     debian/SPIRV/spirv.hpp
   * copyright: Fix Files-Excluded.
   * watch: Match more tags.
+  * copyright: Add buildAndroid to Files-Excluded.
 
  -- Timo Aaltonen <tjaalton@debian.org>  Tue, 15 Mar 2016 15:27:12 +0200
 
