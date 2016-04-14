@@ -7,6 +7,7 @@ vulkan (1.0.8.0+dfsg1-1) UNRELEASED; urgency=medium
   * Drop layers-use-local-spirv-hpp.diff, use a config option to find
     debian/SPIRV/spirv.hpp
   * copyright: Fix Files-Excluded.
+  * watch: Match more tags.
 
  -- Timo Aaltonen <tjaalton@debian.org>  Tue, 15 Mar 2016 15:27:12 +0200
 
