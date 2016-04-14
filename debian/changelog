@@ -1,4 +1,4 @@
-vulkan (1.0.5.0+dfsg1-1) UNRELEASED; urgency=medium
+vulkan (1.0.8.0+dfsg1-1) UNRELEASED; urgency=medium
 
   * New upstream release.
   * patches: Refreshed.
