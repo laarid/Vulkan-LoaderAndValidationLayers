@@ -4,6 +4,8 @@ vulkan (1.0.8.0+dfsg1-1) UNRELEASED; urgency=medium
   * patches: Refreshed.
   * Don't build smoke demo, needs glslang like tri/cube.
   * control: Add libx11-dev and python3-lxml to build-depends.
+  * Drop layers-use-local-spirv-hpp.diff, use a config option to find
+    debian/SPIRV/spirv.hpp
 
  -- Timo Aaltonen <tjaalton@debian.org>  Tue, 15 Mar 2016 15:27:12 +0200
 
