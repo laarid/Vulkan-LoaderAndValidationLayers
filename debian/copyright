@@ -3,6 +3,7 @@ Upstream-Name: Vulkan-LoaderAndValidationLayers
 Source: https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers
 Files-Excluded: 
  buildAndroid
+ demos/smoke/android/gradle/wrapper/gradle-wrapper.jar
  tests/gtest-*
  windowsRuntimeInstaller
 
