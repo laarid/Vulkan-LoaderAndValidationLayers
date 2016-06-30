@@ -2,6 +2,7 @@ vulkan (1.0.17.0+dfsg1-1) UNRELEASED; urgency=medium
 
   * New upstream release.
   * copyright: Update excludes.
+  * patches: Refreshed.
 
  -- Timo Aaltonen <tjaalton@debian.org>  Thu, 30 Jun 2016 13:28:49 +0300
 
