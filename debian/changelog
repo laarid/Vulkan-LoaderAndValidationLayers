@@ -7,6 +7,8 @@ vulkan (1.0.17.0+dfsg1-1) UNRELEASED; urgency=medium
   * Don't build layers, which now depend on SPIRV.
   * control: Add multiarch support. (Closes: #834200)
   * control: Fix libvulkan1 description. (Closes: #822283)
+  * control: Add Breaks/Replaces against upstream packages. (Closes: #823554)
+    (LP: #1572114)
 
  -- Timo Aaltonen <tjaalton@debian.org>  Thu, 30 Jun 2016 13:28:49 +0300
 
