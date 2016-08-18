@@ -19,8 +19,8 @@ Vcs-Browser: https://anonscm.debian.org/cgit/pkg-xorg/lib/vulkan.git
 Package: libvulkan1
 Architecture: linux-any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Breaks: vulkan-loader, vulkan-sdk-runtime,
-Replaces: vulkan-loader, vulkan-sdk-runtime
+Breaks: vulkan-loader
+Replaces: vulkan-loader
 Multi-Arch: same
 Description: Vulkan loader library
  The Loader implements the main VK library. It handles layer management and
