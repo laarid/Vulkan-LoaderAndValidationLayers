@@ -1,4 +1,4 @@
-vulkan (1.0.21.0+dfsg1-1) UNRELEASED; urgency=medium
+vulkan (1.0.21.0+dfsg1-1) unstable; urgency=medium
 
   * New upstream release.
   * copyright: Update excludes.
@@ -15,7 +15,7 @@ vulkan (1.0.21.0+dfsg1-1) UNRELEASED; urgency=medium
     a patch to fix the build on mips64 in case the build is revived
     later. (Closes: #827651)
 
- -- Timo Aaltonen <tjaalton@debian.org>  Thu, 30 Jun 2016 13:28:49 +0300
+ -- Timo Aaltonen <tjaalton@debian.org>  Fri, 19 Aug 2016 00:29:31 +0300
 
 vulkan (1.0.8.0+dfsg1-1) unstable; urgency=medium
 
