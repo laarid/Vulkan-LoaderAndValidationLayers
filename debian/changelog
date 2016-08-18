@@ -9,6 +9,7 @@ vulkan (1.0.17.0+dfsg1-1) UNRELEASED; urgency=medium
   * control: Fix libvulkan1 description. (Closes: #822283)
   * control: Add Breaks/Replaces against upstream packages. (Closes: #823554)
     (LP: #1572114)
+  * Drop libvulkan1 postinst/postrm. (Closes: #822286)
 
  -- Timo Aaltonen <tjaalton@debian.org>  Thu, 30 Jun 2016 13:28:49 +0300
 
