@@ -10,7 +10,7 @@ Date:   Tue Feb 16 10:05:25 2016 -0500
 
 --- a/demos/CMakeLists.txt
 +++ b/demos/CMakeLists.txt
-@@ -89,27 +89,3 @@ endif()
+@@ -114,27 +114,3 @@ endif()
  
  add_executable(vulkaninfo vulkaninfo.c)
  target_link_libraries(vulkaninfo ${LIBRARIES})

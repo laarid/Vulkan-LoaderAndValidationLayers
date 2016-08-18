@@ -6,7 +6,7 @@ Date:   Wed Feb 10 15:11:54 2016 -0500
 
 --- a/layers/CMakeLists.txt
 +++ b/layers/CMakeLists.txt
-@@ -82,7 +82,7 @@ else()
+@@ -81,7 +81,7 @@ else()
      target_link_Libraries(VkLayer_${target} VkLayer_utils)
      add_dependencies(VkLayer_${target} generate_vk_layer_helpers)
      set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
@@ -15,7 +15,7 @@ Date:   Wed Feb 10 15:11:54 2016 -0500
      endmacro()
  endif()
  
-@@ -149,7 +149,7 @@ if (WIN32)
+@@ -148,7 +148,7 @@ if (WIN32)
      add_library(VkLayer_utils STATIC vk_layer_config.cpp vk_layer_extension_utils.cpp vk_layer_utils.cpp)
  else()
      add_library(VkLayer_utils SHARED vk_layer_config.cpp vk_layer_extension_utils.cpp vk_layer_utils.cpp)
