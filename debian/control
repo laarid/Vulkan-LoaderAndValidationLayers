@@ -19,6 +19,7 @@ Vcs-Browser: https://anonscm.debian.org/cgit/pkg-xorg/lib/vulkan.git
 Package: libvulkan1
 Architecture: linux-any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Multi-Arch: same
 Description: Vulkan loader library
  The Loader implements the main VK library. It handles layer management and
  driver management. The loader fully supports multi-gpu operation. As part of
@@ -33,6 +34,7 @@ Architecture: linux-any
 Depends:
  libvulkan1 (= ${binary:Version}),
  ${misc:Depends},
+Multi-Arch: same
 Description: Vulkan loader library -- development files
  The Loader implements the main VK library. It handles layer management and
  driver management. The loader fully supports multi-gpu operation. As part of
