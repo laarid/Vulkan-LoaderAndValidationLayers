@@ -23,12 +23,12 @@ override_dh_auto_install:
 	mkdir -p debian/tmp/usr/include
 	cp -rp include/vulkan debian/tmp/usr/include
 
-	mkdir -p debian/tmp/usr/share/vulkan/explicit_layer.d \
-		 debian/tmp/usr/share/vulkan/implicit_layer.d
-	for i in $(shell cd layers/linux/; ls *.json) ; do \
-		sed 's@./@@' layers/linux/$$i > \
-		debian/tmp/usr/share/vulkan/explicit_layer.d/$$i \
-	; done
+#	mkdir -p debian/tmp/usr/share/vulkan/explicit_layer.d \
+#		 debian/tmp/usr/share/vulkan/implicit_layer.d
+#	for i in $(shell cd layers/linux/; ls *.json) ; do \
+#		sed 's@./@@' layers/linux/$$i > \
+#		debian/tmp/usr/share/vulkan/explicit_layer.d/$$i \
+#	; done
 
 override_dh_install:
 	dh_install --fail-missing
