@@ -26,7 +26,7 @@ Description: Vulkan loader library
  this, it dispatches API calls to the correct driver, and to the correct
  layers, based on the GPU object selected by the application.
  .
- This package includes the loader library and vulkaninfo binary.
+ This package includes the loader library.
 
 Package: libvulkan-dev
 Section: libdevel
