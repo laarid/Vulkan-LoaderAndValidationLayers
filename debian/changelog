@@ -11,6 +11,9 @@ vulkan (1.0.17.0+dfsg1-1) UNRELEASED; urgency=medium
     (LP: #1572114)
   * Drop libvulkan1 postinst/postrm. (Closes: #822286)
   * control: Bump policy to 3.9.8, no changes.
+  * use-mxgot-for-mips64.patch: While we don't build layers anymore, add
+    a patch to fix the build on mips64 in case the build is revived
+    later. (Closes: #827651)
 
  -- Timo Aaltonen <tjaalton@debian.org>  Thu, 30 Jun 2016 13:28:49 +0300
 
