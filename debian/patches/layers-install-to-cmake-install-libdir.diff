@@ -15,7 +15,7 @@ Date:   Wed Feb 10 15:11:54 2016 -0500
      endmacro()
  endif()
  
-@@ -148,7 +148,7 @@ if (WIN32)
+@@ -146,7 +146,7 @@ if (WIN32)
      add_library(VkLayer_utils STATIC vk_layer_config.cpp vk_layer_extension_utils.cpp vk_layer_utils.cpp)
  else()
      add_library(VkLayer_utils SHARED vk_layer_config.cpp vk_layer_extension_utils.cpp vk_layer_utils.cpp)
