@@ -40,6 +40,10 @@ Files: debian/*
 Copyright: 2016 Timo Aaltonen <tjaalton@debian.org>
 License: MIT
 
+Files: debian/patches/install-vulkan-intel-header.diff
+Copyright: 2015 Intel Corporation
+License: MIT
+
 Files: debian/SPIRV/spirv.hpp
 Copyright: 2014-2016 The Khronos Group Inc.
 License: MIT
