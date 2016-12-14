@@ -1,0 +1,7 @@
+trim-build.diff
+demos-dont-build-tri-or-cube-or-smoke.diff
+loader-add-install-rule.diff
+demos-add-install-rule.diff
+layers-install-to-cmake-install-libdir.diff
+use-mxgot-for-mips64.patch
+install-vulkan-intel-header.diff
