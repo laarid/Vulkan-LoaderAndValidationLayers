@@ -1,6 +1,6 @@
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -101,10 +101,10 @@ else()
+@@ -110,10 +110,10 @@ else()
  endif()
  
  option(BUILD_LOADER "Build loader" ON)

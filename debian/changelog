@@ -6,6 +6,9 @@ vulkan (1.0.33.0+dfsg1-1) UNRELEASED; urgency=medium
 
   [ Timo Aaltonen ]
   * New upstream release.
+  * Refresh patches.
+  * demos-add-install-rule.diff, layers-install-to-cmake-install-libdir.diff,
+    loader-add-install-rule.diff: Dropped, upstream.
 
  -- Andreas Boll <andreas.boll.dev@gmail.com>  Thu, 06 Oct 2016 11:59:16 +0200
 
