@@ -9,6 +9,7 @@ vulkan (1.0.37.0+dfsg1-1) UNRELEASED; urgency=medium
   * Refresh patches.
   * demos-add-install-rule.diff, layers-install-to-cmake-install-libdir.diff,
     loader-add-install-rule.diff: Dropped, upstream.
+  * control: Add libwayland-dev to build-depends.
 
  -- Andreas Boll <andreas.boll.dev@gmail.com>  Thu, 06 Oct 2016 11:59:16 +0200
 
