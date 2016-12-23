@@ -1,4 +1,4 @@
-vulkan (1.0.37.0+dfsg1-1) UNRELEASED; urgency=medium
+vulkan (1.0.37.0+dfsg1-1) unstable; urgency=medium
 
   [ Andreas Boll ]
   * Ship vulkan_intel.h via libvulkan-dev (Imported from Mesa source
@@ -13,7 +13,7 @@ vulkan (1.0.37.0+dfsg1-1) UNRELEASED; urgency=medium
   * disable-mir.diff: Don't try to build with Mir support, which Debian
     doesn't have.
 
- -- Andreas Boll <andreas.boll.dev@gmail.com>  Thu, 06 Oct 2016 11:59:16 +0200
+ -- Timo Aaltonen <tjaalton@debian.org>  Fri, 23 Dec 2016 08:39:12 +0200
 
 vulkan (1.0.26.0+dfsg1-1) unstable; urgency=medium
 
