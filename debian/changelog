@@ -2,6 +2,7 @@ vulkan (1.0.39.0+dfsg1-1) UNRELEASED; urgency=medium
 
   * New upstream release.
   * Refresh patches.
+  * control: Add libxrandr-dev to build-depends.
 
  -- Andreas Boll <andreas.boll.dev@gmail.com>  Thu, 26 Jan 2017 15:21:20 +0100
 
