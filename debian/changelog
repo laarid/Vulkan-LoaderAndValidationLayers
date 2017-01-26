@@ -1,10 +1,11 @@
-vulkan (1.0.39.0+dfsg1-1) UNRELEASED; urgency=medium
+vulkan (1.0.39.0+dfsg1-1) unstable; urgency=medium
 
+  [ Andreas Boll ]
   * New upstream release.
   * Refresh patches.
   * control: Add libxrandr-dev to build-depends.
 
- -- Andreas Boll <andreas.boll.dev@gmail.com>  Thu, 26 Jan 2017 15:21:20 +0100
+ -- Timo Aaltonen <tjaalton@debian.org>  Thu, 26 Jan 2017 17:43:33 +0200
 
 vulkan (1.0.37.0+dfsg1-1) unstable; urgency=medium
 
