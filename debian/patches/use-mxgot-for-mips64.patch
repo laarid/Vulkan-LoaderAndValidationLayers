@@ -3,7 +3,7 @@ Author: Dejan Latinovic <Dejan.Latinovic@imgtec.com>
 
 --- a/layers/CMakeLists.txt
 +++ b/layers/CMakeLists.txt
-@@ -140,6 +140,12 @@ else()
+@@ -133,6 +133,12 @@
      set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wpointer-arith -Wno-unused-function -Wno-sign-compare")
  endif()
  
@@ -13,6 +13,6 @@ Author: Dejan Latinovic <Dejan.Latinovic@imgtec.com>
 +    endif()
 +endif()
 +
- run_vk_helper(gen_enum_string_helper vk_enum_string_helper.h)
- run_vk_helper(gen_struct_wrappers
-     vk_struct_string_helper.h
+ add_custom_target(generate_vk_helper_files DEPENDS
+     vk_enum_string_helper.h
+     vk_struct_size_helper.h
