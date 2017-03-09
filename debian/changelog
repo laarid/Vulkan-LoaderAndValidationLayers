@@ -1,6 +1,7 @@
 vulkan (1.0.42.0+dfsg1-1) UNRELEASED; urgency=medium
 
   * New upstream release.
+  * Refresh patches.
 
  -- Timo Aaltonen <tjaalton@debian.org>  Thu, 09 Mar 2017 10:38:21 +0200
 
