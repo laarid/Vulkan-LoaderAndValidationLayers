@@ -1,3 +1,15 @@
+vulkan (1.0.46.0+dfsg2-1) UNRELEASED; urgency=medium
+
+  * Build libVkLayer.
+    - debian/SPIRV/spirv.hpp: Dropped
+    - debian/get-external.sh: Add a script to update glslang and SPIR-V
+    - rules: Modify gentarball target
+    - rules: Modify to build glslang & spirv first
+    - libvulkan-dev.install, dirs, rules: Install json files, provide
+      empty systemwide dirs
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Tue, 09 May 2017 15:30:53 +0300
+
 vulkan (1.0.46.0+dfsg1-1) experimental; urgency=medium
 
   * New upstream release.
