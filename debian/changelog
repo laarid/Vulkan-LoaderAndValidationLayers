@@ -12,6 +12,7 @@ vulkan (1.0.46.0+dfsg2-1) UNRELEASED; urgency=medium
       demos-dont-build-cube.diff: Renamed and updated
     - smoke-check-for-installed-so.diff: Check for libvulkan.so.1 instead
       of .so
+  * rules: Support parallel builds.
 
  -- Timo Aaltonen <tjaalton@debian.org>  Tue, 09 May 2017 15:30:53 +0300
 
