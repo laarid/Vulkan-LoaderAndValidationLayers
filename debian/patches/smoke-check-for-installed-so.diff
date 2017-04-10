@@ -1,0 +1,26 @@
+Description: Check for the installed .so and avoid dependin on -dev
+Author: Timo Aaltonen <tjaalton@debian.org>
+
+--- a/demos/smoke/ShellXcb.cpp
++++ b/demos/smoke/ShellXcb.cpp
+@@ -132,7 +132,7 @@ void ShellXcb::create_window() {
+ }
+ 
+ PFN_vkGetInstanceProcAddr ShellXcb::load_vk() {
+-    const char filename[] = "libvulkan.so";
++    const char filename[] = "libvulkan.so.1";
+     void *handle, *symbol;
+ 
+ #ifdef UNINSTALLED_LOADER
+--- a/demos/smoke/ShellWayland.cpp
++++ b/demos/smoke/ShellWayland.cpp
+@@ -156,7 +156,7 @@ void ShellWayland::create_window() {
+ }
+ 
+ PFN_vkGetInstanceProcAddr ShellWayland::load_vk() {
+-    const char filename[] = "libvulkan.so";
++    const char filename[] = "libvulkan.so.1";
+     void *handle, *symbol;
+ 
+ #ifdef UNINSTALLED_LOADER
+

@@ -1,3 +1,4 @@
-demos-dont-build-tri-or-cube-or-smoke.diff
+demos-dont-build-cube.diff
 use-mxgot-for-mips64.patch
 install-vulkan-intel-header.diff
+smoke-check-for-installed-so.diff

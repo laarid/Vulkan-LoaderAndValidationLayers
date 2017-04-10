@@ -7,6 +7,11 @@ vulkan (1.0.46.0+dfsg2-1) UNRELEASED; urgency=medium
     - rules: Modify to build glslang & spirv first
     - libvulkan-dev.install, dirs, rules: Install json files, provide
       empty systemwide dirs
+  * Install smoke demo.
+    - demos-dont-build-tri-or-cube-or-smoke.diff ->
+      demos-dont-build-cube.diff: Renamed and updated
+    - smoke-check-for-installed-so.diff: Check for libvulkan.so.1 instead
+      of .so
 
  -- Timo Aaltonen <tjaalton@debian.org>  Tue, 09 May 2017 15:30:53 +0300
 
