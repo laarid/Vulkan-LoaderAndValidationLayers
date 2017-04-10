@@ -1,0 +1,50 @@
+diff --git a/libs/vkjson/CMakeLists.txt b/libs/vkjson/CMakeLists.txt
+index 2e79d910..18f29ad3 100644
+--- a/libs/vkjson/CMakeLists.txt
++++ b/libs/vkjson/CMakeLists.txt
+@@ -25,7 +25,29 @@ include_directories(
+ 	${CMAKE_CURRENT_SOURCE_DIR}/../../include/vulkan
+ 	)
+ 
+-add_library(vkjson STATIC vkjson.cc vkjson_instance.cc ../../loader/cJSON.c)
++add_library(vkjson-static STATIC vkjson.cc vkjson_instance.cc ../../loader/cJSON.c)
++set_target_properties(vkjson-static PROPERTIES
++    OUTPUT_NAME vkjson
++    CLEAN_DIRECT_OUTPUT 1)
++
++add_library(vkjson-shared SHARED vkjson.cc vkjson_instance.cc ../../loader/cJSON.c)
++if(WIN32)
++    target_link_libraries(vkjson-shared ${API_LOWERCASE}-${MAJOR})
++elseif(UNIX)
++    target_link_libraries(vkjson-shared ${API_LOWERCASE})
++else()
++endif()
++set_target_properties(vkjson-shared PROPERTIES
++    OUTPUT_NAME vkjson
++    SOVERSION "1"
++    VERSION "1.0.42"
++    CLEAN_DIRECT_OUTPUT 1)
++install(TARGETS vkjson-shared LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
++if(UNIX)
++    install(DIRECTORY "${PROJECT_SOURCE_DIR}/libs/vkjson"
++            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
++            FILES_MATCHING PATTERN "*.h")
++endif()
+ 
+ if(UNIX)
+     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")
+@@ -37,11 +59,11 @@ else()
+     add_executable(vkjson_info vkjson_info.cc)
+ endif()
+ 
+-target_link_libraries(vkjson_unittest vkjson)
++target_link_libraries(vkjson_unittest vkjson-static)
+ 
+ if(WIN32)
+-    target_link_libraries(vkjson_info vkjson ${API_LOWERCASE}-${MAJOR})
++    target_link_libraries(vkjson_info vkjson-static ${API_LOWERCASE}-${MAJOR})
+ elseif(UNIX)
+-    target_link_libraries(vkjson_info vkjson ${API_LOWERCASE})
++    target_link_libraries(vkjson_info vkjson-static ${API_LOWERCASE})
+ else()
+ endif()

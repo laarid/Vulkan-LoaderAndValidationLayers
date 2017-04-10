@@ -1,6 +1,6 @@
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -110,10 +110,10 @@ else()
+@@ -110,8 +110,8 @@ else()
  endif()
  
  option(BUILD_LOADER "Build loader" ON)
@@ -9,8 +9,6 @@
 +option(BUILD_TESTS "Build tests" OFF)
 +option(BUILD_LAYERS "Build layers" OFF)
  option(BUILD_DEMOS "Build demos" ON)
--option(BUILD_VKJSON "Build vkjson" ON)
-+option(BUILD_VKJSON "Build vkjson" OFF)
+ option(BUILD_VKJSON "Build vkjson" ON)
  option(CUSTOM_GLSLANG_BIN_ROOT "Use the user defined GLSLANG_BINARY_ROOT" OFF)
- option(CUSTOM_SPIRV_TOOLS_BIN_ROOT "Use the user defined SPIRV_TOOLS_BINARY_ROOT" OFF)
  

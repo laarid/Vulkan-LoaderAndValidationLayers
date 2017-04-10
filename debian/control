@@ -18,6 +18,22 @@ Homepage: https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers
 Vcs-Git: https://anonscm.debian.org/git/pkg-xorg/lib/vulkan.git
 Vcs-Browser: https://anonscm.debian.org/cgit/pkg-xorg/lib/vulkan.git
 
+Package: libvkjson1
+Architecture: linux-any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Multi-Arch: same
+Description: Vulkan json library
+
+Package: libvkjson-dev
+Section: libdevel
+Architecture: linux-any
+Depends:
+ libvkjson1 (= ${binary:Version}),
+ libvulkan-dev (= ${binary:Version}),
+ ${misc:Depends},
+Multi-Arch: same
+Description: Vulkan json library -- development files
+
 Package: libvulkan1
 Architecture: linux-any
 Depends: ${shlibs:Depends}, ${misc:Depends}
