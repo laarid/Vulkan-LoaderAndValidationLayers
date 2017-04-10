@@ -1,5 +1,6 @@
-vulkan (1.0.42.0+dfsg1-2) UNRELEASED; urgency=medium
+vulkan (1.0.42.2+dfsg1-1) UNRELEASED; urgency=medium
 
+  * New upstream release.
   * trim-build.diff, disable-mir.diff, rules: Use clang build options
     instead of patching CMakeFile.txt.
   * rules: Set build type to 'Release'.
