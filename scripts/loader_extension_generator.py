@@ -1090,13 +1090,13 @@ class LoaderExtensionOutputGenerator(OutputGenerator):
                     funcs += '                   "ICD associated with VkPhysicalDevice does not support '
                     funcs += base_name
                     funcs += '");\n'
+                    funcs += '    }\n'
 
                     if has_surface == 1:
-                        funcs += '        VkIcdSurface *icd_surface = (VkIcdSurface *)(surface);\n'
-                        funcs += '        uint8_t icd_index = phys_dev_term->icd_index;\n'
-                        funcs += '        if (NULL != icd_surface->real_icd_surfaces) {\n'
-                        funcs += '            if (NULL != (void *)icd_surface->real_icd_surfaces[icd_index]) {\n'
-                        funcs += '                return icd_term->dispatch.'
+                        funcs += '    VkIcdSurface *icd_surface = (VkIcdSurface *)(surface);\n'
+                        funcs += '    uint8_t icd_index = phys_dev_term->icd_index;\n'
+                        funcs += '    if (NULL != icd_surface->real_icd_surfaces && NULL != (void *)icd_surface->real_icd_surfaces[icd_index]) {\n'
+                        funcs += '    ' + return_prefix + 'icd_term->dispatch.'
                         funcs += base_name
                         funcs += '('
                         count = 0
@@ -1113,10 +1113,9 @@ class LoaderExtensionOutputGenerator(OutputGenerator):
 
                             count += 1
                         funcs += ');\n'
-                        funcs += '            }\n'
-                        funcs += '        }\n'
-
-                    funcs += '    }\n'
+                        if not has_return_type:
+                            funcs += '        return;\n'
+                        funcs += '    }\n'
 
                     funcs += return_prefix
                     funcs += 'icd_term->dispatch.'
@@ -1141,9 +1140,8 @@ class LoaderExtensionOutputGenerator(OutputGenerator):
                     funcs += '    struct loader_icd_term *icd_term = loader_get_icd_and_device(device, &dev, &icd_index);\n'
                     funcs += '    if (NULL != icd_term && NULL != icd_term->dispatch.%s) {\n' % base_name
                     funcs += '        VkIcdSurface *icd_surface = (VkIcdSurface *)(uintptr_t)%s;\n' % (surface_var_name)
-                    funcs += '        if (NULL != icd_surface->real_icd_surfaces) {\n'
-                    funcs += '            if ((VkSurfaceKHR)NULL != icd_surface->real_icd_surfaces[icd_index]) {\n'
-                    funcs += '            %sicd_term->dispatch.%s(' % (return_prefix, base_name)
+                    funcs += '        if (NULL != icd_surface->real_icd_surfaces && (VkSurfaceKHR)NULL != icd_surface->real_icd_surfaces[icd_index]) {\n'
+                    funcs += '        %sicd_term->dispatch.%s(' % (return_prefix, base_name)
                     count = 0
                     for param in ext_cmd.params:
                         if count != 0:
@@ -1158,7 +1156,6 @@ class LoaderExtensionOutputGenerator(OutputGenerator):
                     funcs += ');\n'
                     if not has_return_type:
                         funcs += '                return;\n'
-                    funcs += '            }\n'
                     funcs += '        }\n'
                     funcs += '    %sicd_term->dispatch.%s(' % (return_prefix, base_name)
                     count = 0
@@ -1168,7 +1165,7 @@ class LoaderExtensionOutputGenerator(OutputGenerator):
                         funcs += param.name
                         count += 1
                     funcs += ');\n'
-                    funcs += '     }\n'
+                    funcs += '    }\n'
                     if has_return_type:
                         funcs += '    return VK_SUCCESS;\n'
 

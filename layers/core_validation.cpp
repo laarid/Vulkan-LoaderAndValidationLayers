@@ -106,6 +106,7 @@ struct devExts {
     bool wsi_enabled;
     bool wsi_display_swapchain_enabled;
     bool nv_glsl_shader_enabled;
+    bool khr_descriptor_update_template_enabled;
     unordered_map<VkSwapchainKHR, unique_ptr<SWAPCHAIN_NODE>> swapchainMap;
     unordered_map<VkImage, VkSwapchainKHR> imageToSwapchainMap;
 };
@@ -171,6 +172,7 @@ struct layer_data {
     unordered_map<ImageSubresourcePair, IMAGE_LAYOUT_NODE> imageLayoutMap;
     unordered_map<VkRenderPass, unique_ptr<RENDER_PASS_STATE>> renderPassMap;
     unordered_map<VkShaderModule, unique_ptr<shader_module>> shaderModuleMap;
+    unordered_map<VkDescriptorUpdateTemplateKHR, unique_ptr<TEMPLATE_STATE>> desc_template_map;
 
     VkDevice device = VK_NULL_HANDLE;
     VkPhysicalDevice physical_device = VK_NULL_HANDLE;
@@ -3827,6 +3829,7 @@ static void checkDeviceRegisterExtensions(const VkDeviceCreateInfo *pCreateInfo,
     dev_data->device_extensions.wsi_enabled = false;
     dev_data->device_extensions.wsi_display_swapchain_enabled = false;
     dev_data->device_extensions.nv_glsl_shader_enabled = false;
+    dev_data->device_extensions.khr_descriptor_update_template_enabled = false;
 
     for (i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
         if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0) {
@@ -3837,6 +3840,9 @@ static void checkDeviceRegisterExtensions(const VkDeviceCreateInfo *pCreateInfo,
         }
         if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_NV_GLSL_SHADER_EXTENSION_NAME) == 0) {
             dev_data->device_extensions.nv_glsl_shader_enabled = true;
+        }
+        if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_DESCRIPTOR_UPDATE_TEMPLATE_EXTENSION_NAME) == 0) {
+            dev_data->device_extensions.khr_descriptor_update_template_enabled = true;
         }
     }
 }
@@ -11457,9 +11463,135 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroupsKHX(
     return VK_ERROR_VALIDATION_FAILED_EXT;
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplateKHR(VkDevice device,
+                                                                 const VkDescriptorUpdateTemplateCreateInfoKHR *pCreateInfo,
+                                                                 const VkAllocationCallbacks *pAllocator,
+                                                                 VkDescriptorUpdateTemplateKHR *pDescriptorUpdateTemplate) {
+    layer_data *dev_data = GetLayerDataPtr(get_dispatch_key(device), layer_data_map);
+    safe_VkDescriptorUpdateTemplateCreateInfoKHR *local_create_info = NULL;
+    {
+        std::lock_guard<std::mutex> lock(global_lock);
+        if (pCreateInfo) {
+            local_create_info = new safe_VkDescriptorUpdateTemplateCreateInfoKHR(pCreateInfo);
+        }
+    }
+    VkResult result = dev_data->dispatch_table.CreateDescriptorUpdateTemplateKHR(
+        device, (const VkDescriptorUpdateTemplateCreateInfoKHR *)local_create_info, pAllocator, pDescriptorUpdateTemplate);
+    if (VK_SUCCESS == result) {
+        std::lock_guard<std::mutex> lock(global_lock);
+        // Shadow template createInfo for later updates
+        std::unique_ptr<TEMPLATE_STATE> template_state(new TEMPLATE_STATE(*pDescriptorUpdateTemplate, local_create_info));
+        dev_data->desc_template_map[*pDescriptorUpdateTemplate] = std::move(template_state);
+    }
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplateKHR(VkDevice device,
+                                                              VkDescriptorUpdateTemplateKHR descriptorUpdateTemplate,
+                                                              const VkAllocationCallbacks *pAllocator) {
+    layer_data *dev_data = GetLayerDataPtr(get_dispatch_key(device), layer_data_map);
+    std::unique_lock<std::mutex> lock(global_lock);
+    dev_data->desc_template_map.erase(descriptorUpdateTemplate);
+    lock.unlock();
+    dev_data->dispatch_table.DestroyDescriptorUpdateTemplateKHR(device, descriptorUpdateTemplate, pAllocator);
+}
+
+void PostCallRecordUpdateDescriptorSetWithTemplateKHR(layer_data *device_data, VkDescriptorSet descriptorSet,
+                                                      VkDescriptorUpdateTemplateKHR descriptorUpdateTemplate, const void *pData) {
+    auto const template_map_entry = device_data->desc_template_map.find(descriptorUpdateTemplate);
+    if (template_map_entry == device_data->desc_template_map.end()) {
+        assert(0);
+    }
+
+    auto const &create_info = template_map_entry->second->create_info;
+
+    // Create a vector of write structs
+    std::vector<VkWriteDescriptorSet> desc_writes;
+    auto layout_obj = GetDescriptorSetLayout(device_data, create_info.descriptorSetLayout);
+
+    // Create a WriteDescriptorSet struct for each template update entry
+    for (uint32_t i = 0; i < create_info.descriptorUpdateEntryCount; i++) {
+        auto binding_count = layout_obj->GetDescriptorCountFromBinding(create_info.pDescriptorUpdateEntries[i].dstBinding);
+        auto binding_being_updated = create_info.pDescriptorUpdateEntries[i].dstBinding;
+        auto dst_array_element = create_info.pDescriptorUpdateEntries[i].dstArrayElement;
+
+        for (uint32_t j = 0; j < create_info.pDescriptorUpdateEntries[i].descriptorCount; j++) {
+            desc_writes.emplace_back();
+            auto &write_entry = desc_writes.back();
+
+            size_t offset = create_info.pDescriptorUpdateEntries[i].offset + j * create_info.pDescriptorUpdateEntries[i].stride;
+            char *update_entry = (char *)(pData) + offset;
+
+            if (dst_array_element >= binding_count) {
+                dst_array_element = 0;
+                // Move to next binding having a non-zero binding count
+                do {
+                    binding_being_updated++;
+                    binding_count = layout_obj->GetDescriptorCountFromBinding(binding_being_updated);
+                } while (binding_count == 0);
+            }
+
+            write_entry.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            write_entry.pNext = NULL;
+            write_entry.dstSet = descriptorSet;
+            write_entry.dstBinding = binding_being_updated;
+            write_entry.dstArrayElement = dst_array_element;
+            write_entry.descriptorCount = 1;
+            write_entry.descriptorType = create_info.pDescriptorUpdateEntries[i].descriptorType;
+
+            switch (create_info.pDescriptorUpdateEntries[i].descriptorType) {
+                case VK_DESCRIPTOR_TYPE_SAMPLER:
+                case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                    write_entry.pImageInfo = reinterpret_cast<VkDescriptorImageInfo *>(update_entry);
+                    break;
+
+                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                    write_entry.pBufferInfo = reinterpret_cast<VkDescriptorBufferInfo *>(update_entry);
+                    break;
+
+                case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                    write_entry.pTexelBufferView = reinterpret_cast<VkBufferView *>(update_entry);
+                    break;
+                default:
+                    assert(0);
+                    break;
+            }
+            dst_array_element++;
+        }
+    }
+    cvdescriptorset::PerformUpdateDescriptorSets(device_data, static_cast<uint32_t>(desc_writes.size()), desc_writes.data(), 0,
+                                                 NULL);
+}
+
+VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice device, VkDescriptorSet descriptorSet,
+                                                              VkDescriptorUpdateTemplateKHR descriptorUpdateTemplate,
+                                                              const void *pData) {
+    layer_data *device_data = GetLayerDataPtr(get_dispatch_key(device), layer_data_map);
+    device_data->dispatch_table.UpdateDescriptorSetWithTemplateKHR(device, descriptorSet, descriptorUpdateTemplate, pData);
+
+    PostCallRecordUpdateDescriptorSetWithTemplateKHR(device_data, descriptorSet, descriptorUpdateTemplate, pData);
+
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer commandBuffer,
+                                                               VkDescriptorUpdateTemplateKHR descriptorUpdateTemplate,
+                                                               VkPipelineLayout layout, uint32_t set, const void *pData) {
+    layer_data *dev_data = GetLayerDataPtr(get_dispatch_key(commandBuffer), layer_data_map);
+    dev_data->dispatch_table.CmdPushDescriptorSetWithTemplateKHR(commandBuffer, descriptorUpdateTemplate, layout, set, pData);
+}
+
 static PFN_vkVoidFunction intercept_core_instance_command(const char *name);
 
 static PFN_vkVoidFunction intercept_core_device_command(const char *name);
+
+static PFN_vkVoidFunction intercept_device_extension_command(const char *name, VkDevice device);
 
 static PFN_vkVoidFunction intercept_khr_swapchain_command(const char *name, VkDevice dev);
 
@@ -11469,16 +11601,14 @@ static PFN_vkVoidFunction
 intercept_extension_instance_commands(const char *name, VkInstance instance);
 
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice dev, const char *funcName) {
-    PFN_vkVoidFunction proc = intercept_core_device_command(funcName);
-    if (proc) return proc;
-
     assert(dev);
 
-    proc = intercept_khr_swapchain_command(funcName, dev);
+    PFN_vkVoidFunction proc = intercept_core_device_command(funcName);
+    if (!proc) proc = intercept_device_extension_command(funcName, dev);
+    if (!proc) proc = intercept_khr_swapchain_command(funcName, dev);
     if (proc) return proc;
 
     layer_data *dev_data = GetLayerDataPtr(get_dispatch_key(dev), layer_data_map);
-
     auto &table = dev_data->dispatch_table;
     if (!table.GetDeviceProcAddr) return nullptr;
     return table.GetDeviceProcAddr(dev, funcName);
@@ -11667,6 +11797,34 @@ static PFN_vkVoidFunction intercept_core_device_command(const char *name) {
 
     for (size_t i = 0; i < ARRAY_SIZE(core_device_commands); i++) {
         if (!strcmp(core_device_commands[i].name, name)) return core_device_commands[i].proc;
+    }
+
+    return nullptr;
+}
+
+static PFN_vkVoidFunction intercept_device_extension_command(const char *name, VkDevice device) {
+    layer_data *device_data = GetLayerDataPtr(get_dispatch_key(device), layer_data_map);
+
+    const struct {
+        const char *name;
+        PFN_vkVoidFunction proc;
+        bool enabled;
+    } device_extension_commands[] = {
+        {"vkCreateDescriptorUpdateTemplateKHR", reinterpret_cast<PFN_vkVoidFunction>(CreateDescriptorUpdateTemplateKHR),
+         device_data->device_extensions.khr_descriptor_update_template_enabled},
+        {"vkDestroyDescriptorUpdateTemplateKHR", reinterpret_cast<PFN_vkVoidFunction>(DestroyDescriptorUpdateTemplateKHR),
+         device_data->device_extensions.khr_descriptor_update_template_enabled},
+        {"vkUpdateDescriptorSetWithTemplateKHR", reinterpret_cast<PFN_vkVoidFunction>(UpdateDescriptorSetWithTemplateKHR),
+         device_data->device_extensions.khr_descriptor_update_template_enabled},
+        {"vkCmdPushDescriptorSetWithTemplateKHR", reinterpret_cast<PFN_vkVoidFunction>(CmdPushDescriptorSetWithTemplateKHR),
+         device_data->device_extensions.khr_descriptor_update_template_enabled},
+    };
+
+    if (!device_data || !device_data->device_extensions.khr_descriptor_update_template_enabled) return nullptr;
+
+    for (size_t i = 0; i < ARRAY_SIZE(device_extension_commands); i++) {
+        if (!strcmp(device_extension_commands[i].name, name) && device_extension_commands[i].enabled)
+            return device_extension_commands[i].proc;
     }
 
     return nullptr;
