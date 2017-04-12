@@ -35,6 +35,14 @@
 #include <cJSON.h>
 #include <vulkan/vk_sdk_platform.h>
 
+#if defined(__GNUC__) && __GNUC__ >= 4
+#define VKJSON_EXPORT __attribute__((visibility("default")))
+#elif defined(__SUNPRO_C) && (__SUNPRO_C >= 0x590)
+#define VKJSON_EXPORT __attribute__((visibility("default")))
+#else
+#define VKJSON_EXPORT
+#endif
+
 namespace {
 
 inline bool IsIntegral(double value) {
@@ -674,32 +682,32 @@ template <typename T> bool VkTypeFromJson(const std::string& json,
 
 }  // anonymous namespace
 
-std::string VkJsonInstanceToJson(const VkJsonInstance& instance) {
+VKJSON_EXPORT VKAPI_ATTR std::string VKAPI_CALL VkJsonInstanceToJson(const VkJsonInstance& instance) {
   return VkTypeToJson(instance);
 }
 
-bool VkJsonInstanceFromJson(const std::string& json,
+VKJSON_EXPORT VKAPI_ATTR bool VKAPI_CALL VkJsonInstanceFromJson(const std::string& json,
                             VkJsonInstance* instance,
                             std::string* errors) {
   return VkTypeFromJson(json, instance, errors);
 }
 
-std::string VkJsonDeviceToJson(const VkJsonDevice& device) {
+VKJSON_EXPORT VKAPI_ATTR std::string VKAPI_CALL VkJsonDeviceToJson(const VkJsonDevice& device) {
   return VkTypeToJson(device);
 }
 
-bool VkJsonDeviceFromJson(const std::string& json,
+VKJSON_EXPORT VKAPI_ATTR bool VKAPI_CALL VkJsonDeviceFromJson(const std::string& json,
                           VkJsonDevice* device,
                           std::string* errors) {
   return VkTypeFromJson(json, device, errors);
 };
 
-std::string VkJsonImageFormatPropertiesToJson(
+VKJSON_EXPORT VKAPI_ATTR std::string VKAPI_CALL VkJsonImageFormatPropertiesToJson(
     const VkImageFormatProperties& properties) {
   return VkTypeToJson(properties);
 }
 
-bool VkJsonImageFormatPropertiesFromJson(const std::string& json,
+VKJSON_EXPORT VKAPI_ATTR bool VKAPI_CALL VkJsonImageFormatPropertiesFromJson(const std::string& json,
                                          VkImageFormatProperties* properties,
                                          std::string* errors) {
   return VkTypeFromJson(json, properties, errors);

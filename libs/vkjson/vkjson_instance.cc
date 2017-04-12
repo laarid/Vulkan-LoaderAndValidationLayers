@@ -23,6 +23,14 @@
 
 #include <utility>
 
+#if defined(__GNUC__) && __GNUC__ >= 4
+#define VKJSON_EXPORT __attribute__((visibility("default")))
+#elif defined(__SUNPRO_C) && (__SUNPRO_C >= 0x590)
+#define VKJSON_EXPORT __attribute__((visibility("default")))
+#else
+#define VKJSON_EXPORT
+#endif
+
 namespace {
 bool EnumerateExtensions(const char* layer_name,
                          std::vector<VkExtensionProperties>* extensions) {
@@ -41,7 +49,7 @@ bool EnumerateExtensions(const char* layer_name,
 
 }  // anonymous namespace
 
-VkJsonDevice VkJsonGetDevice(VkPhysicalDevice physical_device) {
+VKJSON_EXPORT VKAPI_ATTR VkJsonDevice VKAPI_CALL VkJsonGetDevice(VkPhysicalDevice physical_device) {
   VkJsonDevice device;
   vkGetPhysicalDeviceProperties(physical_device, &device.properties);
   vkGetPhysicalDeviceFeatures(physical_device, &device.features);
@@ -90,7 +98,7 @@ VkJsonDevice VkJsonGetDevice(VkPhysicalDevice physical_device) {
   return device;
 }
 
-VkJsonInstance VkJsonGetInstance() {
+VKJSON_EXPORT VKAPI_ATTR VkJsonInstance VKAPI_CALL VkJsonGetInstance() {
   VkJsonInstance instance;
   VkResult result;
   uint32_t count;
