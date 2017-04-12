@@ -1,3 +1,9 @@
+vulkan (1.0.42.0+dfsg1-1+laarid) experimental; urgency=low
+
+  * build libvkjson
+
+ -- You-Sheng Yang <vicamo@gmail.com>  Tue, 11 Apr 2017 15:41:32 +0800
+
 vulkan (1.0.42.0+dfsg1-1) experimental; urgency=medium
 
   * New upstream release. (Closes: #857185)
