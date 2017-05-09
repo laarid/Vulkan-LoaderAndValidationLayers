@@ -5,6 +5,7 @@ vulkan (1.0.46.0+dfsg1-1) UNRELEASED; urgency=medium
     instead of patching CMakeFile.txt.
   * rules: Set build type to 'Release'.
   * patches: Refreshed.
+  * dev.install: Add pkgconfig file.
 
  -- Timo Aaltonen <tjaalton@debian.org>  Sun, 09 Apr 2017 11:19:11 +0300
 
