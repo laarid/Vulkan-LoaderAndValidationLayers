@@ -13,6 +13,7 @@ vulkan (1.0.46.0+dfsg2-1) UNRELEASED; urgency=medium
     - smoke-check-for-installed-so.diff: Check for libvulkan.so.1 instead
       of .so
   * rules: Support parallel builds.
+  * Add README.source and a reminder to get-external.sh to run git add.
 
  -- Timo Aaltonen <tjaalton@debian.org>  Tue, 09 May 2017 15:30:53 +0300
 
