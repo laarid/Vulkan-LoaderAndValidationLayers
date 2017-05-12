@@ -1,4 +1,4 @@
-vulkan (1.0.46.0+dfsg2-1) UNRELEASED; urgency=medium
+vulkan (1.0.46.0+dfsg2-1) experimental; urgency=medium
 
   * Build libVkLayer.
     - debian/SPIRV/spirv.hpp: Dropped
@@ -15,7 +15,7 @@ vulkan (1.0.46.0+dfsg2-1) UNRELEASED; urgency=medium
   * rules: Support parallel builds.
   * Add README.source and a reminder to get-external.sh to run git add.
 
- -- Timo Aaltonen <tjaalton@debian.org>  Tue, 09 May 2017 15:30:53 +0300
+ -- Timo Aaltonen <tjaalton@debian.org>  Fri, 12 May 2017 18:57:44 +0300
 
 vulkan (1.0.46.0+dfsg1-1) experimental; urgency=medium
 
