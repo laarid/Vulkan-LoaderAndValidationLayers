@@ -6,7 +6,7 @@ include /usr/share/dpkg/default.mk
 
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
 	NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
-	PMAKE += make $(if $(NUMJOBS),-j$(NUMJOBS))
+	MAKE_FLAGS += $(if $(NUMJOBS),-j$(NUMJOBS))
 endif
 
 # main packaging script based on dh7 syntax
@@ -24,9 +24,9 @@ build_spirv:
 	mkdir -p external/glslang/build \
 		external/spirv-tools/build
 	cd external/glslang/build && \
-	(cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON ..; $(PMAKE); make install)
+	(cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON ..; make $(MAKE_FLAGS); make install)
 	cd external/spirv-tools/build/ && \
-	(cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON ..; $(PMAKE))
+	(cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON ..; make $(MAKE_FLAGS))
 
 override_dh_auto_configure: build_spirv
 	dh_auto_configure -- \

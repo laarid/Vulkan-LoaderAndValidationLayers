@@ -1,3 +1,9 @@
+vulkan (1.0.46.0+dfsg2-2) UNRELEASED; urgency=medium
+
+  * rules: Fix glslang/spir-v build to always run make.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Wed, 17 May 2017 08:14:00 +0300
+
 vulkan (1.0.46.0+dfsg2-1) experimental; urgency=medium
 
   * Build libVkLayer.
