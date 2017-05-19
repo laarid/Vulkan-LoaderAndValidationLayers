@@ -1,10 +1,10 @@
-vulkan (1.0.46.0+dfsg3-1) UNRELEASED; urgency=medium
+vulkan (1.0.46.0+dfsg3-1) experimental; urgency=medium
 
   * rules: Fix glslang/spir-v build to always run make.
   * get-external.sh, rules: Fix the order of spirv-tools/-headers, and
     rebuild the tarball. Thanks, Philipp Zabel!
 
- -- Timo Aaltonen <tjaalton@debian.org>  Wed, 17 May 2017 08:14:00 +0300
+ -- Timo Aaltonen <tjaalton@debian.org>  Sat, 20 May 2017 00:11:43 +0300
 
 vulkan (1.0.46.0+dfsg2-1) experimental; urgency=medium
 
