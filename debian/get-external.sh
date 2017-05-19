@@ -13,10 +13,10 @@ wget $URL/spirv-tools/archive/$SPIRV_TOOLS_SHA.tar.gz -O spirv-tools.tar.gz
 
 
 tar xf glslang.tar.gz -C external/glslang --strip 1
-tar xf spirv-headers.tar.gz -C external/spirv-tools --strip 1
-tar xf spirv-tools.tar.gz -C external/spirv-tools/external/spirv-headers --strip 1
+tar xf spirv-tools.tar.gz -C external/spirv-tools --strip 1
+tar xf spirv-headers.tar.gz -C external/spirv-tools/external/spirv-headers --strip 1
 
 # clean
 rm glslang.tar.gz spirv-tools.tar.gz spirv-headers.tar.gz
 
-echo "Remember to git add new files in external/"
+echo "Remember to run 'git add -f external/' and check that it looks sane"

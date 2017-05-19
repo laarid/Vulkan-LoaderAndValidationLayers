@@ -1,169 +1,51 @@
 # Copyright (c) 2015-2016 The Khronos Group Inc.
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and/or associated documentation files (the
+# "Materials"), to deal in the Materials without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Materials, and to
+# permit persons to whom the Materials are furnished to do so, subject to
+# the following conditions:
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Materials.
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# MODIFICATIONS TO THIS FILE MAY MEAN IT NO LONGER ACCURATELY REFLECTS
+# KHRONOS STANDARDS. THE UNMODIFIED, NORMATIVE VERSIONS OF KHRONOS
+# SPECIFICATIONS AND HEADER INFORMATION ARE LOCATED AT
+#    https://www.khronos.org/registry/
+#
+# THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
 
-cmake_minimum_required(VERSION 2.8.12)
-if (POLICY CMP0054)
-  # Avoid dereferencing variables or interpret keywords that have been
-  # quoted or bracketed.
-  # https://cmake.org/cmake/help/v3.1/policy/CMP0054.html
-  cmake_policy(SET CMP0054 NEW)
-endif()
+#
+# The SPIR-V headers from the SPIR-V Registry
+# https://www.khronos.org/registry/spir-v/
+#
+cmake_minimum_required(VERSION 2.8)
+project(SPIRV-Headers)
 
-project(spirv-tools)
-enable_testing()
-set(SPIRV_TOOLS "SPIRV-Tools")
+# There are two ways to use this project.
+#
+# Using this source tree directly from a CMake-based project:
+#   1. Add an add_subdirectory directive to include this sub directory.
+#   2. Use ${SPIRV-Headers_SOURCE_DIR}/include} in a target_include_directories
+#      command.
+#
+# Installing the headers first, then using them with an implicit include
+# directory.  To install the headers:
+#   1. mkdir build ; cd build
+#   2. cmake ..
+#   3. cmake --build . install-headers
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+file(GLOB_RECURSE FILES include/spirv/*)
+add_custom_target(install-headers
+  COMMAND cmake -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/include/spirv ${CMAKE_INSTALL_PREFIX}/include/spirv)
 
-if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
-  add_definitions(-DSPIRV_LINUX)
-elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
-  add_definitions(-DSPIRV_WINDOWS)
-elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "CYGWIN")
-  add_definitions(-DSPIRV_WINDOWS)
-elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-  add_definitions(-DSPIRV_MAC)
-elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Android")
-  add_definitions(-DSPIRV_ANDROID)
-else()
-  message(FATAL_ERROR "Your platform '${CMAKE_SYSTEM_NAME}' is not supported!")
-endif()
-
-if ("${CMAKE_BUILD_TYPE}" STREQUAL "")
-  message(STATUS "No build type selected, default to Debug")
-  set(CMAKE_BUILD_TYPE "Debug")
-endif()
-
-option(SPIRV_WERROR "Enable error on warning" ON)
-if(("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang"))
-  set(COMPILER_IS_LIKE_GNU TRUE)
-endif()
-if(${COMPILER_IS_LIKE_GNU})
-  set(SPIRV_WARNINGS -Wall -Wextra -Wnon-virtual-dtor -Wno-missing-field-initializers)
-
-  option(SPIRV_WARN_EVERYTHING "Enable -Weverything" ${SPIRV_WARN_EVERYTHING})
-  if(${SPIRV_WARN_EVERYTHING})
-    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-      set(SPIRV_WARNINGS ${SPIRV_WARNINGS}
-        -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded)
-    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-      set(SPIRV_WARNINGS ${SPIRV_WARNINGS} -Wpedantic -pedantic-errors)
-    else()
-      message(STATUS "Unknown compiler ${CMAKE_CXX_COMPILER_ID}, "
-                     "so SPIRV_WARN_EVERYTHING has no effect")
-    endif()
-  endif()
-
-  if(${SPIRV_WERROR})
-    set(SPIRV_WARNINGS ${SPIRV_WARNINGS} -Werror)
-  endif()
-elseif(MSVC)
-  set(SPIRV_WARNINGS -D_CRT_SECURE_NO_WARNINGS /wd4800)
-
-  if(${SPIRV_WERROR})
-    set(SPIRV_WARNINGS ${SPIRV_WARNINGS} /WX)
-  endif()
-endif()
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source)
-
-option(SPIRV_COLOR_TERMINAL "Enable color terminal output" ON)
-if(${SPIRV_COLOR_TERMINAL})
-  add_definitions(-DSPIRV_COLOR_TERMINAL)
-endif()
-
-option(SPIRV_LOG_DEBUG "Enable excessive debug output" OFF)
-if(${SPIRV_LOG_DEBUG})
-  add_definitions(-DSPIRV_LOG_DEBUG)
-endif()
-
-function(spvtools_default_compile_options TARGET)
-  target_compile_options(${TARGET} PRIVATE ${SPIRV_WARNINGS})
-
-  if (${COMPILER_IS_LIKE_GNU})
-    target_compile_options(${TARGET} PRIVATE
-      -std=c++11 -fno-exceptions -fno-rtti)
-    target_compile_options(${TARGET} PRIVATE
-      -Wall -Wextra -Wno-long-long -Wshadow -Wundef -Wconversion
-      -Wno-sign-conversion)
-    # For good call stacks in profiles, keep the frame pointers.
-    if(NOT "${SPIRV_PERF}" STREQUAL "")
-      target_compile_options(${TARGET} PRIVATE -fno-omit-frame-pointer)
-    endif()
-    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-      set(SPIRV_USE_SANITIZER "" CACHE STRING
-        "Use the clang sanitizer [address|memory|thread|...]")
-      if(NOT "${SPIRV_USE_SANITIZER}" STREQUAL "")
-        target_compile_options(${TARGET} PRIVATE
-          -fsanitize=${SPIRV_USE_SANITIZER})
-      endif()
-    else()
-      target_compile_options(${TARGET} PRIVATE
-         -Wno-missing-field-initializers)
-    endif()
-  endif()
-
-  # For MinGW cross compile, statically link to the C++ runtime.
-  # But it still depends on MSVCRT.dll.
-  if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    if (${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
-      set_target_properties(${TARGET} PROPERTIES
-        LINK_FLAGS -static -static-libgcc -static-libstdc++)
-    endif()
-  endif()
-endfunction()
-
-if(NOT COMMAND find_host_package)
-  macro(find_host_package)
-    find_package(${ARGN})
-  endmacro()
-endif()
-if(NOT COMMAND find_host_program)
-  macro(find_host_program)
-    find_program(${ARGN})
-  endmacro()
-endif()
-
-find_host_package(PythonInterp)
-
-
-# Defaults to OFF if the user didn't set it.
-option(SPIRV_SKIP_EXECUTABLES
-  "Skip building the executable and tests along with the library"
-  ${SPIRV_SKIP_EXECUTABLES})
-option(SPIRV_SKIP_TESTS
-  "Skip building tests along with the library" ${SPIRV_SKIP_TESTS})
-if ("${SPIRV_SKIP_EXECUTABLES}")
-  set(SPIRV_SKIP_TESTS ON)
-endif()
-
-add_subdirectory(external)
-
-add_subdirectory(source)
-add_subdirectory(tools)
-
-add_subdirectory(test)
-add_subdirectory(examples)
-
-install(
-  FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/spirv-tools/libspirv.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/spirv-tools/libspirv.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/spirv-tools/optimizer.hpp
-  DESTINATION
-    include/spirv-tools/)
-
-add_test(NAME spirv-tools-copyrights
-         COMMAND ${PYTHON_EXECUTABLE} utils/check_copyright.py
-         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_subdirectory(example)

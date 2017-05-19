@@ -32,8 +32,7 @@ override_dh_auto_configure: build_spirv
 	dh_auto_configure -- \
 	-DCMAKE_BUILD_TYPE=Release \
 	-DCMAKE_INSTALL_LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH) \
-	-DSPIRV_TOOLS_INCLUDE_DIR=../external/spirv-tools/external/spirv-headers/include \
-	-DSPIRV_TOOLS_LIB=../external/spirv-tools \
+	-DSPIRV_TOOLS_INCLUDE_DIR=../external/spirv-tools/include \
 	-DBUILD_TESTS=OFF \
 	-DBUILD_VKJSON=OFF \
 	-DBUILD_WSI_MIR_SUPPORT=OFF
