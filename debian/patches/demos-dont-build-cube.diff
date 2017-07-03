@@ -1,0 +1,34 @@
+commit f63cbe944107b5cd8f150ceaaec43b26099d5688
+Author: Adam Jackson <ajax@redhat.com>
+Date:   Tue Feb 16 10:05:25 2016 -0500
+
+    demos: Don't build cube
+    
+    There are more interesting demos, all we really want here is vulkaninfo.
+    This helps because we don't need to pre-build glslang/llvm/lunarglass
+    just to get the loader and layers.
+
+--- a/demos/CMakeLists.txt
++++ b/demos/CMakeLists.txt
+@@ -118,8 +118,8 @@ target_link_libraries(${API_LOWERCASE}in
+ 
+ if(NOT WIN32)
+     if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL ${CMAKE_HOST_SYSTEM_PROCESSOR})
+-        add_executable(cube cube.c ${CMAKE_BINARY_DIR}/demos/cube-vert.spv ${CMAKE_BINARY_DIR}/demos/cube-frag.spv)
+-        target_link_libraries(cube ${LIBRARIES})
++#        add_executable(cube cube.c ${CMAKE_BINARY_DIR}/demos/cube-vert.spv ${CMAKE_BINARY_DIR}/demos/cube-frag.spv)
++#        target_link_libraries(cube ${LIBRARIES})
+     endif()
+ else()
+     if (CMAKE_CL_64)
+@@ -134,8 +134,8 @@ endif()
+ 
+ if(NOT WIN32)
+     if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL ${CMAKE_HOST_SYSTEM_PROCESSOR})
+-        add_executable(cubepp cube.cpp ${CMAKE_BINARY_DIR}/demos/cube-vert.spv ${CMAKE_BINARY_DIR}/demos/cube-frag.spv)
+-        target_link_libraries(cubepp ${LIBRARIES})
++#        add_executable(cubepp cube.cpp ${CMAKE_BINARY_DIR}/demos/cube-vert.spv ${CMAKE_BINARY_DIR}/demos/cube-frag.spv)
++#        target_link_libraries(cubepp ${LIBRARIES})
+     endif()
+ else()
+     if (CMAKE_CL_64)
