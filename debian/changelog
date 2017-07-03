@@ -1,6 +1,7 @@
 vulkan (1.0.51.0+dfsg1-1) UNRELEASED; urgency=medium
 
   * New upstream release.
+    - smoke-check-for-installed-so.diff: Dropped, upstream.
   * install-vk-layer-dispatch-table-h.diff: Put
     vk_layer_dispatch_table.h in include/vulkan. (LP: #1692244)
 
