@@ -24,7 +24,7 @@ build_spirv:
 	mkdir -p external/glslang/build \
 		external/spirv-tools/build
 	cd external/glslang/build && \
-	(cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON ..; make $(MAKE_FLAGS); make install)
+	(cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=./install -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON ..; make $(MAKE_FLAGS); make install)
 	cd external/spirv-tools/build/ && \
 	(cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON ..; make $(MAKE_FLAGS))
 
