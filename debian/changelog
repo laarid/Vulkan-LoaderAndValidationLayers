@@ -1,5 +1,6 @@
-vulkan (1.0.46.0+dfsg3-2) UNRELEASED; urgency=medium
+vulkan (1.0.51.0+dfsg1-1) UNRELEASED; urgency=medium
 
+  * New upstream release.
   * install-vk-layer-dispatch-table-h.diff: Put
     vk_layer_dispatch_table.h in include/vulkan. (LP: #1692244)
 
