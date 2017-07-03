@@ -27,8 +27,8 @@ namespace {
 spv_result_t SetSpvHeader(void* builder, spv_endianness_t, uint32_t magic,
                           uint32_t version, uint32_t generator,
                           uint32_t id_bound, uint32_t reserved) {
-  reinterpret_cast<ir::IrLoader*>(builder)->SetModuleHeader(
-      magic, version, generator, id_bound, reserved);
+  reinterpret_cast<ir::IrLoader*>(builder)
+      ->SetModuleHeader(magic, version, generator, id_bound, reserved);
   return SPV_SUCCESS;
 };
 
@@ -64,11 +64,12 @@ std::unique_ptr<ir::Module> BuildModule(spv_target_env env,
 
 std::unique_ptr<ir::Module> BuildModule(spv_target_env env,
                                         MessageConsumer consumer,
-                                        const std::string& text) {
+                                        const std::string& text,
+                                        uint32_t assemble_options) {
   SpirvTools t(env);
   t.SetMessageConsumer(consumer);
   std::vector<uint32_t> binary;
-  if (!t.Assemble(text, &binary)) return nullptr;
+  if (!t.Assemble(text, &binary, assemble_options)) return nullptr;
   return BuildModule(env, consumer, binary.data(), binary.size());
 }
 

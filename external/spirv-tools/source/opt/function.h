@@ -38,6 +38,8 @@ class Function {
   // Creates a function instance declared by the given OpFunction instruction
   // |def_inst|.
   inline explicit Function(std::unique_ptr<Instruction> def_inst);
+  // The OpFunction instruction that begins the definition of this function.
+  Instruction& DefInst() { return *def_inst_; }
 
   // Sets the enclosing module for this function.
   void SetParent(Module* module) { module_ = module; }
@@ -49,10 +51,20 @@ class Function {
   // Saves the given function end instruction.
   inline void SetFunctionEnd(std::unique_ptr<Instruction> end_inst);
 
+  // Returns function's id
+  inline uint32_t result_id() const { return def_inst_->result_id(); }
+
+  // Returns function's type id
+  inline uint32_t type_id() const { return def_inst_->type_id(); }
+
   iterator begin() { return iterator(&blocks_, blocks_.begin()); }
   iterator end() { return iterator(&blocks_, blocks_.end()); }
-  const_iterator cbegin() { return const_iterator(&blocks_, blocks_.cbegin()); }
-  const_iterator cend() { return const_iterator(&blocks_, blocks_.cend()); }
+  const_iterator cbegin() const {
+    return const_iterator(&blocks_, blocks_.cbegin());
+  }
+  const_iterator cend() const {
+    return const_iterator(&blocks_, blocks_.cend());
+  }
 
   // Runs the given function |f| on each instruction in this function, and
   // optionally on debug line instructions that might precede them.
@@ -61,6 +73,11 @@ class Function {
   void ForEachInst(const std::function<void(const Instruction*)>& f,
                    bool run_on_debug_line_insts = false) const;
 
+  // Runs the given function |f| on each parameter instruction in this function,
+  // and optionally on debug line instructions that might precede them.
+  void ForEachParam(const std::function<void(const Instruction*)>& f,
+                    bool run_on_debug_line_insts = false) const;
+
  private:
   // The enclosing module.
   Module* module_;
@@ -68,7 +85,7 @@ class Function {
   std::unique_ptr<Instruction> def_inst_;
   // All parameters to this function.
   std::vector<std::unique_ptr<Instruction>> params_;
-  // All basic blocks inside this function.
+  // All basic blocks inside this function in specification order
   std::vector<std::unique_ptr<BasicBlock>> blocks_;
   // The OpFunctionEnd instruction.
   std::unique_ptr<Instruction> end_inst_;
