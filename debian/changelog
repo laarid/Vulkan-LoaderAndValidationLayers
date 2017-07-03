@@ -4,6 +4,7 @@ vulkan (1.0.51.0+dfsg1-1) UNRELEASED; urgency=medium
     - smoke-check-for-installed-so.diff: Dropped, upstream.
   * install-vk-layer-dispatch-table-h.diff: Put
     vk_layer_dispatch_table.h in include/vulkan. (LP: #1692244)
+  * Rename vulkan-smoke to vulkan-smoketest.
 
  -- Timo Aaltonen <tjaalton@debian.org>  Sun, 21 May 2017 09:21:06 +0300
 

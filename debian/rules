@@ -48,7 +48,7 @@ override_dh_auto_install:
 	mv debian/tmp/etc/vulkan/explicit_layer.d/*.json \
 	   debian/tmp/usr/share/vulkan/explicit_layer.d
 
-	install -T build/demos/smoketest debian/tmp/usr/bin/vulkan-smoke
+	mv debian/tmp/usr/bin/smoketest debian/tmp/usr/bin/vulkan-smoketest
 
 override_dh_install:
 	dh_install --fail-missing
