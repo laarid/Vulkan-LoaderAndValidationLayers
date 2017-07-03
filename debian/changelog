@@ -6,6 +6,8 @@ vulkan (1.0.51.0+dfsg1-1) UNRELEASED; urgency=medium
     vk_layer_dispatch_table.h in include/vulkan. (LP: #1692244)
   * Rename vulkan-smoke to vulkan-smoketest.
   * rules: Fix glslang build.
+  * copyright: Local copy of spirv.hpp got dropped, so drop it from
+    copyright too.
 
  -- Timo Aaltonen <tjaalton@debian.org>  Sun, 21 May 2017 09:21:06 +0300
 
