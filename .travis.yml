@@ -105,6 +105,7 @@ before_install:
 install:
   - |
     if [[ "$VULKAN_BUILD_TARGET" == "LAARID" ]]; then \
+      ${DOCKER_EXEC_ROOT} chown -R laarid:laarid ${TRAVIS_BUILD_DIR%${TRAVIS_REPO_SLUG}}; \
       ${DOCKER_EXEC_ROOT} apt-get update -qq; \
       ${DOCKER_EXEC} \
         mk-build-deps --install --remove \
@@ -129,6 +130,7 @@ script:
     fi
 
 before_deploy:
+- sudo chown -R $(id -u):$(id -g) ${TRAVIS_BUILD_DIR%${TRAVIS_REPO_SLUG}}
 - |
   cat debian/bintray.json.in | \
     sed -e "s#@BINTRAY_PACKAGE@#$(cat debian/control | grep ^Source: | awk '{print $2}')#g" \
