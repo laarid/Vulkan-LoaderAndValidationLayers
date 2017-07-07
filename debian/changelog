@@ -1,3 +1,10 @@
+vulkan (1.0.42.0+dfsg1-1+laarid+deb9u1) testing; urgency=low
+
+  * ci: ensure build dir write access inside container
+  * debian: first buster release
+
+ -- You-Sheng Yang <vicamo@gmail.com>  Fri, 7 Jul 2017 15:08:22 +0800
+
 vulkan (1.0.42.0+dfsg1-1+laarid) experimental; urgency=low
 
   * build libvkjson
