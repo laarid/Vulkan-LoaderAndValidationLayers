@@ -1,0 +1,17 @@
+Bundling of GLSLANG and SPIR-V
+
+The source includes debian/get-external.sh script, which is used
+to bundle new snapshot of GLSLANG and SPIR-V in the source. These
+are required to build libVkLayer.so.
+
+The procedure to update to a new upstream release goes usually like
+this:
+
+# git checkout upstream-unstable
+# git reset --hard <new upstream tag>
+# git checkout -b d-u
+# git merge -s ours debian-unstable
+# debian/get-external.sh
+# git add external/ ; git commit
+# dch
+# debian/rules gentarball
