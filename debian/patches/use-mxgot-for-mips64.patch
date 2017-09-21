@@ -3,7 +3,7 @@ Author: Dejan Latinovic <Dejan.Latinovic@imgtec.com>
 
 --- a/layers/CMakeLists.txt
 +++ b/layers/CMakeLists.txt
-@@ -138,6 +138,12 @@ if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "
+@@ -167,6 +167,12 @@ if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "
      endif()
  endif()
  
@@ -14,5 +14,5 @@ Author: Dejan Latinovic <Dejan.Latinovic@imgtec.com>
 +endif()
 +
  run_vk_xml_generate(threading_generator.py thread_check.h)
- run_vk_xml_generate(parameter_validation_generator.py parameter_validation.h)
+ run_vk_xml_generate(parameter_validation_generator.py parameter_validation.cpp)
  run_vk_xml_generate(unique_objects_generator.py unique_objects_wrappers.h)
