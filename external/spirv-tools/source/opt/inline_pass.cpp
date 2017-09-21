@@ -15,17 +15,18 @@
 // limitations under the License.
 
 #include "inline_pass.h"
+
 #include "cfa.h"
 
 // Indices of operands in SPIR-V instructions
 
-static const int kSpvEntryPointFunctionId = 1;
 static const int kSpvFunctionCallFunctionId = 2;
 static const int kSpvFunctionCallArgumentId = 3;
 static const int kSpvReturnValueId = 0;
 static const int kSpvTypePointerStorageClass = 1;
 static const int kSpvTypePointerTypeId = 2;
 static const int kSpvLoopMergeMergeBlockId = 0;
+static const int kSpvLoopMergeContinueTargetIdInIdx = 1;
 static const int kSpvSelectionMergeMergeBlockId = 0;
 
 namespace spvtools {
@@ -228,9 +229,9 @@ void InlinePass::GenInlineCode(
   ir::Function* calleeFn = id2function_[call_inst_itr->GetSingleWordOperand(
       kSpvFunctionCallFunctionId)];
 
-  // Check for early returns
-  auto fi = early_return_.find(calleeFn->result_id());
-  bool earlyReturn = fi != early_return_.end();
+  // Check for multiple returns in the callee.
+  auto fi = multi_return_funcs_.find(calleeFn->result_id());
+  const bool multiReturn = fi != multi_return_funcs_.end();
 
   // Map parameters to actual arguments.
   MapParams(calleeFn, call_inst_itr, &callee2caller);
@@ -242,6 +243,31 @@ void InlinePass::GenInlineCode(
   // Create return var if needed.
   uint32_t returnVarId = CreateReturnVar(calleeFn, new_vars);
 
+  // Create set of callee result ids. Used to detect forward references
+  std::unordered_set<uint32_t> callee_result_ids;
+  calleeFn->ForEachInst([&callee_result_ids](
+      const ir::Instruction* cpi) {
+    const uint32_t rid = cpi->result_id();
+    if (rid != 0)
+      callee_result_ids.insert(rid);
+  });
+
+  // If the caller is in a single-block loop, and the callee has multiple
+  // blocks, then the normal inlining logic will place the OpLoopMerge in
+  // the last of several blocks in the loop.  Instead, it should be placed
+  // at the end of the first block.  First determine if the caller is in a
+  // single block loop.  We'll wait to move the OpLoopMerge until the end
+  // of the regular inlining logic, and only if necessary.
+  bool caller_is_single_block_loop = false;
+  if (auto* loop_merge = call_block_itr->GetLoopMergeInst()) {
+    caller_is_single_block_loop =
+        call_block_itr->id() ==
+        loop_merge->GetSingleWordInOperand(kSpvLoopMergeContinueTargetIdInIdx);
+  }
+
+  bool callee_begins_with_structured_header =
+      (*(calleeFn->begin())).GetMergeInst() != nullptr;
+
   // Clone and map callee code. Copy caller block code to beginning of
   // first block and end of last block.
   bool prevInstWasReturn = false;
@@ -250,14 +276,19 @@ void InlinePass::GenInlineCode(
   uint32_t returnLabelId = 0;
   bool multiBlocks = false;
   const uint32_t calleeTypeId = calleeFn->type_id();
+  // new_blk_ptr is a new basic block in the caller.  New instructions are
+  // written to it.  It is created when we encounter the OpLabel
+  // of the first callee block.  It is appended to new_blocks only when
+  // it is complete.
   std::unique_ptr<ir::BasicBlock> new_blk_ptr;
   calleeFn->ForEachInst([&new_blocks, &callee2caller, &call_block_itr,
                          &call_inst_itr, &new_blk_ptr, &prevInstWasReturn,
-                         &returnLabelId, &returnVarId, &calleeTypeId,
-                         &multiBlocks, &postCallSB, &preCallSB, &earlyReturn,
+                         &returnLabelId, &returnVarId,
+                         caller_is_single_block_loop,
+                         callee_begins_with_structured_header, &calleeTypeId,
+                         &multiBlocks, &postCallSB, &preCallSB, multiReturn,
                          &singleTripLoopHeaderId, &singleTripLoopContinueId,
-                         this](
-      const ir::Instruction* cpi) {
+                         &callee_result_ids, this](const ir::Instruction* cpi) {
     switch (cpi->opcode()) {
       case SpvOpFunction:
       case SpvOpFunctionParameter:
@@ -304,10 +335,36 @@ void InlinePass::GenInlineCode(
             }
             new_blk_ptr->AddInstruction(std::move(cp_inst));
           }
-          // If callee is early return function, insert header block for
-          // one-trip loop that will encompass callee code. Start postheader
+          if (caller_is_single_block_loop &&
+              callee_begins_with_structured_header) {
+            // We can't place both the caller's merge instruction and another
+            // merge instruction in the same block.  So split the calling block.
+            // Insert an unconditional branch to a new guard block.  Later,
+            // once we know the ID of the last block,  we will move the caller's
+            // OpLoopMerge from the last generated block into the first block.
+            // We also wait to avoid invalidating various iterators.
+            const auto guard_block_id = this->TakeNextId();
+            AddBranch(guard_block_id, &new_blk_ptr);
+            new_blocks->push_back(std::move(new_blk_ptr));
+            // Start the next block.
+            new_blk_ptr.reset(new ir::BasicBlock(NewLabel(guard_block_id)));
+            // Reset the mapping of the callee's entry block to point to
+            // the guard block.  Do this so we can fix up phis later on to
+            // satisfy dominance.
+            callee2caller[cpi->result_id()] = guard_block_id;
+          }
+          // If callee has multiple returns, insert a header block for
+          // single-trip loop that will encompass callee code.  Start postheader
           // block.
-          if (earlyReturn) {
+          //
+          // Note: Consider the following combination:
+          //  - the caller is a single block loop
+          //  - the callee does not begin with a structure header
+          //  - the callee has multiple returns.
+          // We still need to split the caller block and insert a guard block.
+          // But we only need to do it once. We haven't done it yet, but the
+          // single-trip loop header will serve the same purpose.
+          if (multiReturn) {
             singleTripLoopHeaderId = this->TakeNextId();
             AddBranch(singleTripLoopHeaderId, &new_blk_ptr);
             new_blocks->push_back(std::move(new_blk_ptr));
@@ -321,6 +378,10 @@ void InlinePass::GenInlineCode(
             new_blocks->push_back(std::move(new_blk_ptr));
             new_blk_ptr.reset(new ir::BasicBlock(NewLabel(postHeaderId)));
             multiBlocks = true;
+            // Reset the mapping of the callee's entry block to point to
+            // the post-header block.  Do this so we can fix up phis later
+            // on to satisfy dominance.
+            callee2caller[cpi->result_id()] = postHeaderId;
           }
         } else {
           multiBlocks = true;
@@ -346,16 +407,23 @@ void InlinePass::GenInlineCode(
         prevInstWasReturn = true;
       } break;
       case SpvOpFunctionEnd: {
-        // If there was an early return, insert continue and return blocks.
-        // If previous instruction was return, insert branch instruction
-        // to return block.
+        // If there was an early return, we generated a return label id
+        // for it.  Now we have to generate the return block with that Id.
         if (returnLabelId != 0) {
+          // If previous instruction was return, insert branch instruction
+          // to return block.
           if (prevInstWasReturn) AddBranch(returnLabelId, &new_blk_ptr);
-          new_blocks->push_back(std::move(new_blk_ptr));
-          new_blk_ptr.reset(new ir::BasicBlock(NewLabel(
-              singleTripLoopContinueId)));
-          AddBranchCond(GetFalseId(), singleTripLoopHeaderId, returnLabelId, 
-              &new_blk_ptr);
+          if (multiReturn) {
+            // If we generated a loop header to for the single-trip loop
+            // to accommodate multiple returns, insert the continue
+            // target block now, with a false branch back to the loop header.
+            new_blocks->push_back(std::move(new_blk_ptr));
+            new_blk_ptr.reset(
+                new ir::BasicBlock(NewLabel(singleTripLoopContinueId)));
+            AddBranchCond(GetFalseId(), singleTripLoopHeaderId, returnLabelId,
+                          &new_blk_ptr);
+          }
+          // Generate the return block.
           new_blocks->push_back(std::move(new_blk_ptr));
           new_blk_ptr.reset(new ir::BasicBlock(NewLabel(returnLabelId)));
           multiBlocks = true;
@@ -388,33 +456,59 @@ void InlinePass::GenInlineCode(
       default: {
         // Copy callee instruction and remap all input Ids.
         std::unique_ptr<ir::Instruction> cp_inst(new ir::Instruction(*cpi));
-        cp_inst->ForEachInId([&callee2caller, &cpi, this](uint32_t* iid) {
+        cp_inst->ForEachInId([&callee2caller, &callee_result_ids,
+                              this](uint32_t* iid) {
           const auto mapItr = callee2caller.find(*iid);
           if (mapItr != callee2caller.end()) {
             *iid = mapItr->second;
-          } else if (cpi->HasLabels()) {
-            const ir::Instruction* inst =
-                def_use_mgr_->id_to_defs().find(*iid)->second;
-            if (inst->opcode() == SpvOpLabel) {
-              // Forward label reference. Allocate a new label id, map it,
-              // use it and check for it at each label.
-              const uint32_t nid = this->TakeNextId();
-              callee2caller[*iid] = nid;
-              *iid = nid;
-            }
+          } else if (callee_result_ids.find(*iid) != callee_result_ids.end()) {
+            // Forward reference. Allocate a new id, map it,
+            // use it and check for it when remapping result ids
+            const uint32_t nid = this->TakeNextId();
+            callee2caller[*iid] = nid;
+            *iid = nid;
           }
         });
-        // Map and reset result id.
+        // If result id is non-zero, remap it. If already mapped, use mapped
+        // value, else use next id.
         const uint32_t rid = cp_inst->result_id();
         if (rid != 0) {
-          const uint32_t nid = this->TakeNextId();
-          callee2caller[rid] = nid;
+          const auto mapItr = callee2caller.find(rid);
+          uint32_t nid;
+          if (mapItr != callee2caller.end()) {
+            nid = mapItr->second;
+          }
+          else {
+            nid = this->TakeNextId();
+            callee2caller[rid] = nid;
+          }
           cp_inst->SetResultId(nid);
         }
         new_blk_ptr->AddInstruction(std::move(cp_inst));
       } break;
     }
   });
+
+  if (caller_is_single_block_loop && (new_blocks->size() > 1)) {
+    // Move the OpLoopMerge from the last block back to the first, where
+    // it belongs.  Also, update its continue target to point to the last
+    // block.
+    auto& first = new_blocks->front();
+    auto& last = new_blocks->back();
+    assert(first != last);
+
+    // Insert a modified copy of the loop merge into the first block.
+    auto loop_merge_itr = last->tail();
+    --loop_merge_itr;
+    assert(loop_merge_itr->opcode() == SpvOpLoopMerge);
+    std::unique_ptr<ir::Instruction> cp_inst(new ir::Instruction(*loop_merge_itr));
+    cp_inst->SetInOperand(kSpvLoopMergeContinueTargetIdInIdx, {last->id()});
+    first->tail().InsertBefore(std::move(cp_inst));
+
+    // Remove the loop merge from the last block.
+    loop_merge_itr.Erase();
+  }
+
   // Update block map given replacement blocks.
   for (auto& blk : *new_blocks) {
     id2block_[blk->id()] = &*blk;
@@ -429,47 +523,21 @@ bool InlinePass::IsInlinableFunctionCall(const ir::Instruction* inst) {
   return ci != inlinable_.cend();
 }
 
-bool InlinePass::Inline(ir::Function* func) {
-  bool modified = false;
-  // Using block iterators here because of block erasures and insertions.
-  for (auto bi = func->begin(); bi != func->end(); ++bi) {
-    for (auto ii = bi->begin(); ii != bi->end();) {
-      if (IsInlinableFunctionCall(&*ii)) {
-        // Inline call.
-        std::vector<std::unique_ptr<ir::BasicBlock>> newBlocks;
-        std::vector<std::unique_ptr<ir::Instruction>> newVars;
-        GenInlineCode(&newBlocks, &newVars, ii, bi);
-        // Update phi functions in successor blocks if call block
-        // is replaced with more than one block.
-        if (newBlocks.size() > 1) {
-          const auto firstBlk = newBlocks.begin();
-          const auto lastBlk = newBlocks.end() - 1;
-          const uint32_t firstId = (*firstBlk)->id();
-          const uint32_t lastId = (*lastBlk)->id();
-          (*lastBlk)->ForEachSuccessorLabel(
-              [&firstId, &lastId, this](uint32_t succ) {
-                ir::BasicBlock* sbp = this->id2block_[succ];
-                sbp->ForEachPhiInst([&firstId, &lastId](ir::Instruction* phi) {
-                  phi->ForEachInId([&firstId, &lastId](uint32_t* id) {
-                    if (*id == firstId) *id = lastId;
-                  });
-                });
-              });
-        }
-        // Replace old calling block with new block(s).
-        bi = bi.Erase();
-        bi = bi.InsertBefore(&newBlocks);
-        // Insert new function variables.
-        if (newVars.size() > 0) func->begin()->begin().InsertBefore(&newVars);
-        // Restart inlining at beginning of calling block.
-        ii = bi->begin();
-        modified = true;
-      } else {
-        ++ii;
-      }
-    }
-  }
-  return modified;
+void InlinePass::UpdateSucceedingPhis(
+    std::vector<std::unique_ptr<ir::BasicBlock>>& new_blocks) {
+  const auto firstBlk = new_blocks.begin();
+  const auto lastBlk = new_blocks.end() - 1;
+  const uint32_t firstId = (*firstBlk)->id();
+  const uint32_t lastId = (*lastBlk)->id();
+  (*lastBlk)->ForEachSuccessorLabel(
+      [&firstId, &lastId, this](uint32_t succ) {
+        ir::BasicBlock* sbp = this->id2block_[succ];
+        sbp->ForEachPhiInst([&firstId, &lastId](ir::Instruction* phi) {
+          phi->ForEachInId([&firstId, &lastId](uint32_t* id) {
+            if (*id == firstId) *id = lastId;
+          });
+        });
+      });
 }
 
 bool InlinePass::HasMultipleReturns(ir::Function* func) {
@@ -573,7 +641,7 @@ void InlinePass::AnalyzeReturns(ir::Function* func) {
     no_return_in_loop_.insert(func->result_id());
     return;
   }
-  early_return_.insert(func->result_id());
+  multi_return_funcs_.insert(func->result_id());
   // If multiple returns, see if any are in a loop
   if (HasNoReturnInLoop(func))
     no_return_in_loop_.insert(func->result_id());
@@ -589,11 +657,11 @@ bool InlinePass::IsInlinableFunction(ir::Function* func) {
   // done validly if the return was not in a loop in the original function.
   // Also remember functions with multiple (early) returns.
   AnalyzeReturns(func);
-  const auto ci = no_return_in_loop_.find(func->result_id());
-  return ci != no_return_in_loop_.cend();
+  return no_return_in_loop_.find(func->result_id()) !=
+         no_return_in_loop_.cend();
 }
 
-void InlinePass::Initialize(ir::Module* module) {
+void InlinePass::InitializeInline(ir::Module* module) {
   def_use_mgr_.reset(new analysis::DefUseManager(consumer(), module));
 
   // Initialize next unused Id.
@@ -604,10 +672,14 @@ void InlinePass::Initialize(ir::Module* module) {
 
   false_id_ = 0;
 
+  // clear collections
   id2function_.clear();
   id2block_.clear();
   block2structured_succs_.clear();
   inlinable_.clear();
+  no_return_in_loop_.clear();
+  multi_return_funcs_.clear();
+
   for (auto& fn : *module_) {
     // Initialize function and block maps.
     id2function_[fn.result_id()] = &fn;
@@ -620,27 +692,9 @@ void InlinePass::Initialize(ir::Module* module) {
   }
 };
 
-Pass::Status InlinePass::ProcessImpl() {
-  // Do exhaustive inlining on each entry point function in module
-  bool modified = false;
-  for (auto& e : module_->entry_points()) {
-    ir::Function* fn =
-        id2function_[e.GetSingleWordOperand(kSpvEntryPointFunctionId)];
-    modified = Inline(fn) || modified;
-  }
-
-  FinalizeNextId(module_);
-
-  return modified ? Status::SuccessWithChange : Status::SuccessWithoutChange;
-}
 
 InlinePass::InlinePass()
     : module_(nullptr), def_use_mgr_(nullptr), next_id_(0) {}
-
-Pass::Status InlinePass::Process(ir::Module* module) {
-  Initialize(module);
-  return ProcessImpl();
-}
 
 }  // namespace opt
 }  // namespace spvtools

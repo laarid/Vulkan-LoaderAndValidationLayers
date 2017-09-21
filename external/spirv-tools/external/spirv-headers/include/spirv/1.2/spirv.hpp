@@ -47,11 +47,11 @@ namespace spv {
 typedef unsigned int Id;
 
 #define SPV_VERSION 0x10200
-#define SPV_REVISION 1
+#define SPV_REVISION 2
 
 static const unsigned int MagicNumber = 0x07230203;
 static const unsigned int Version = 0x00010200;
-static const unsigned int Revision = 1;
+static const unsigned int Revision = 2;
 static const unsigned int OpCodeMask = 0xffff;
 static const unsigned int WordCountShift = 16;
 
@@ -130,6 +130,7 @@ enum ExecutionMode {
     ExecutionModeLocalSizeId = 38,
     ExecutionModeLocalSizeHintId = 39,
     ExecutionModePostDepthCoverage = 4446,
+    ExecutionModeStencilRefReplacingEXT = 5027,
     ExecutionModeMax = 0x7fffffff,
 };
 
@@ -454,6 +455,7 @@ enum BuiltIn {
     BuiltInBaryCoordSmoothCentroidAMD = 4996,
     BuiltInBaryCoordSmoothSampleAMD = 4997,
     BuiltInBaryCoordPullModelAMD = 4998,
+    BuiltInFragStencilRefEXT = 5014,
     BuiltInViewportMaskNV = 5253,
     BuiltInSecondaryPositionNV = 5257,
     BuiltInSecondaryViewportMaskNV = 5258,
@@ -657,8 +659,11 @@ enum Capability {
     CapabilityAtomicStorageOps = 4445,
     CapabilitySampleMaskPostDepthCoverage = 4447,
     CapabilityImageGatherBiasLodAMD = 5009,
+    CapabilityStencilExportEXT = 5013,
+    CapabilityImageReadWriteLodAMD = 5015,
     CapabilitySampleMaskOverrideCoverageNV = 5249,
     CapabilityGeometryShaderPassthroughNV = 5251,
+    CapabilityShaderViewportIndexLayerEXT = 5254,
     CapabilityShaderViewportIndexLayerNV = 5254,
     CapabilityShaderViewportMaskNV = 5255,
     CapabilityShaderStereoViewNV = 5259,

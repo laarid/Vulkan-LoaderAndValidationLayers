@@ -201,14 +201,25 @@ Optimizer::PassToken CreateEliminateDeadConstantPass();
 // these is left for future improvements. 
 Optimizer::PassToken CreateBlockMergePass();
 
-// Creates an inline pass.
-// An inline pass exhaustively inlines all function calls in all functions
-// designated as an entry point. The intent is to enable, albeit through
-// brute force, analysis and optimization across function calls by subsequent
-// passes. As the inlining is exhaustive, there is no attempt to optimize for
-// size or runtime performance. Functions that are not designated as entry
-// points are not changed.
-Optimizer::PassToken CreateInlinePass();
+// Creates an exhaustive inline pass.
+// An exhaustive inline pass attempts to exhaustively inline all function
+// calls in all functions in an entry point call tree. The intent is to enable,
+// albeit through brute force, analysis and optimization across function
+// calls by subsequent optimization passes. As the inlining is exhaustive,
+// there is no attempt to optimize for size or runtime performance. Functions
+// that are not in the call tree of an entry point are not changed.
+Optimizer::PassToken CreateInlineExhaustivePass();
+  
+// Creates an opaque inline pass.
+// An opaque inline pass inlines all function calls in all functions in all
+// entry point call trees where the called function contains an opaque type
+// in either its parameter types or return type. An opaque type is currently
+// defined as Image, Sampler or SampledImage. The intent is to enable, albeit
+// through brute force, analysis and optimization across these function calls
+// by subsequent passes in order to remove the storing of opaque types which is
+// not legal in Vulkan. Functions that are not in the call tree of an entry
+// point are not changed.
+Optimizer::PassToken CreateInlineOpaquePass();
   
 // Creates a single-block local variable load/store elimination pass.
 // For every entry point function, do single block memory optimization of 
@@ -227,8 +238,41 @@ Optimizer::PassToken CreateInlinePass();
 //
 // This pass is most effective if preceeded by Inlining and 
 // LocalAccessChainConvert. This pass will reduce the work needed to be done
-// by LocalSingleStoreElim and LocalSSARewrite.
+// by LocalSingleStoreElim and LocalMultiStoreElim.
+//
+// Only functions in the call tree of an entry point are processed.
 Optimizer::PassToken CreateLocalSingleBlockLoadStoreElimPass();
+
+// Create dead branch elimination pass.
+// For each entry point function, this pass will look for SelectionMerge
+// BranchConditionals with constant condition and convert to a Branch to
+// the indicated label. It will delete resulting dead blocks.
+//
+// This pass only works on shaders (guaranteed to have structured control
+// flow). Note that some such branches and blocks may be left to avoid
+// creating invalid control flow. Improving this is left to future work.
+//
+// This pass is most effective when preceeded by passes which eliminate
+// local loads and stores, effectively propagating constant values where
+// possible.
+Optimizer::PassToken CreateDeadBranchElimPass();
+
+// Creates an SSA local variable load/store elimination pass.
+// For every entry point function, eliminate all loads and stores of function
+// scope variables only referenced with non-access-chain loads and stores.
+// Eliminate the variables as well. 
+//
+// The presence of access chain references and function calls can inhibit
+// the above optimization.
+//
+// Only shader modules with logical addressing are currently processed.
+// Currently modules with any extensions enabled are not processed. This
+// is left for future work.
+//
+// This pass is most effective if preceeded by Inlining and 
+// LocalAccessChainConvert. LocalSingleStoreElim and LocalSingleBlockElim
+// will reduce the work that this pass has to do.
+Optimizer::PassToken CreateLocalMultiStoreElimPass();
 
 // Creates a local access chain conversion pass.
 // A local access chain conversion pass identifies all function scope
@@ -247,6 +291,28 @@ Optimizer::PassToken CreateLocalSingleBlockLoadStoreElimPass();
 // possible.
 Optimizer::PassToken CreateLocalAccessChainConvertPass();
 
+// Create aggressive dead code elimination pass
+// This pass eliminates unused code from functions. In addition,
+// it detects and eliminates code which may have spurious uses but which do
+// not contribute to the output of the function. The most common cause of
+// such code sequences is summations in loops whose result is no longer used
+// due to dead code elimination. This optimization has additional compile
+// time cost over standard dead code elimination.
+//
+// This pass only processes entry point functions. It also only processes
+// shaders with logical addressing. It currently will not process functions
+// with function calls. It currently only supports the GLSL.std.450 extended
+// instruction set. It currently does not support any extensions.
+//
+// This pass will be made more effective by first running passes that remove
+// dead control flow and inlines function calls.
+//
+// This pass can be especially useful after running Local Access Chain
+// Conversion, which tends to cause cycles of dead code to be left after
+// Store/Load elimination passes are completed. These cycles cannot be
+// eliminated with standard dead code elimination.
+Optimizer::PassToken CreateAggressiveDCEPass();
+
 // Creates a local single store elimination pass.
 // For each entry point function, this pass eliminates loads and stores for 
 // function scope variable that are stored to only once, where possible. Only
@@ -261,8 +327,8 @@ Optimizer::PassToken CreateLocalAccessChainConvertPass();
 // these operations are future work.
 //
 // This pass will reduce the work needed to be done by LocalSingleBlockElim
-// and LocalSSARewrite and can improve the effectiveness of other passes such
-// as DeadBranchElimination which depend on values for their analysis.
+// and LocalMultiStoreElim and can improve the effectiveness of other passes
+// such as DeadBranchElimination which depend on values for their analysis.
 Optimizer::PassToken CreateLocalSingleStoreElimPass();
 
 // Creates an insert/extract elimination pass.
@@ -276,6 +342,52 @@ Optimizer::PassToken CreateLocalSingleStoreElimPass();
 // passes to delete the inserts. This pass performs best after access chains are
 // converted to inserts and extracts and local loads and stores are eliminated.
 Optimizer::PassToken CreateInsertExtractElimPass();
+
+// Create dead branch elimination pass.
+// For each entry point function, this pass will look for BranchConditionals
+// with constant condition and convert to a branch. The BranchConditional must
+// be preceeded by OpSelectionMerge. For all phi functions in merge block,
+// replace all uses with the id corresponding to the living predecessor.
+//
+// This pass is most effective when preceeded by passes which eliminate
+// local loads and stores, effectively propagating constant values where
+// possible.
+Optimizer::PassToken CreateDeadBranchElimPass();
+
+// Creates a pass to consolidate uniform references.
+// For each entry point function in the module, first change all constant index
+// access chain loads into equivalent composite extracts. Then consolidate 
+// identical uniform loads into one uniform load. Finally, consolidate
+// identical uniform extracts into one uniform extract. This may require
+// moving a load or extract to a point which dominates all uses.
+//
+// This pass requires a module to have structured control flow ie shader
+// capability. It also requires logical addressing ie Addresses capability
+// is not enabled. It also currently does not support any extensions.
+//
+// This pass currently only optimizes loads with a single index.
+Optimizer::PassToken CreateCommonUniformElimPass();
+
+// Create aggressive dead code elimination pass
+// This pass eliminates unused code from functions. In addition,
+// it detects and eliminates code which may have spurious uses but which do
+// not contribute to the output of the function. The most common cause of
+// such code sequences is summations in loops whose result is no longer used
+// due to dead code elimination. This optimization has additional compile
+// time cost over standard dead code elimination.
+//
+// This pass only processes entry point functions. It also only processes
+// shaders with logical addressing. It currently will not process functions
+// with function calls.
+//
+// This pass will be made more effective by first running passes that remove
+// dead control flow and inlines function calls.
+//
+// This pass can be especially useful after running Local Access Chain
+// Conversion, which tends to cause cycles of dead code to be left after
+// Store/Load elimination passes are completed. These cycles cannot be
+// eliminated with standard dead code elimination.
+Optimizer::PassToken CreateAggressiveDCEPass();
 
 // Creates a compact ids pass.
 // The pass remaps result ids to a compact and gapless range starting from %1.

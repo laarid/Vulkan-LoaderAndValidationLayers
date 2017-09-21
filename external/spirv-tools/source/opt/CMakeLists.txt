@@ -12,11 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 add_library(SPIRV-Tools-opt
+  aggressive_dead_code_elim_pass.h
   basic_block.h
   block_merge_pass.h
   build_module.h
+  common_uniform_elim_pass.h
   compact_ids_pass.h
   constants.h
+  dead_branch_elim_pass.h
   def_use_manager.h
   eliminate_dead_constant_pass.h
   flatten_decoration_pass.h
@@ -24,16 +27,20 @@ add_library(SPIRV-Tools-opt
   fold_spec_constant_op_and_composite_pass.h
   freeze_spec_constant_value_pass.h
   inline_pass.h
+  inline_exhaustive_pass.h
+  inline_opaque_pass.h
   insert_extract_elim.h
   instruction.h
   ir_loader.h
   local_access_chain_convert_pass.h
   local_single_block_elim_pass.h
   local_single_store_elim_pass.h
+  local_ssa_elim_pass.h
   log.h
   module.h
   null_pass.h
   reflect.h
+  mem_pass.h
   pass.h
   passes.h
   pass_manager.h
@@ -43,26 +50,34 @@ add_library(SPIRV-Tools-opt
   type_manager.h
   unify_const_pass.h
 
+  aggressive_dead_code_elim_pass.cpp
   basic_block.cpp
   block_merge_pass.cpp
   build_module.cpp
+  common_uniform_elim_pass.cpp
   compact_ids_pass.cpp
   def_use_manager.cpp
+  dead_branch_elim_pass.cpp
   eliminate_dead_constant_pass.cpp
   flatten_decoration_pass.cpp
   function.cpp
   fold_spec_constant_op_and_composite_pass.cpp
   freeze_spec_constant_value_pass.cpp
   inline_pass.cpp
+  inline_exhaustive_pass.cpp
+  inline_opaque_pass.cpp
   insert_extract_elim.cpp
   instruction.cpp
   ir_loader.cpp
   local_access_chain_convert_pass.cpp
   local_single_block_elim_pass.cpp
   local_single_store_elim_pass.cpp
+  local_ssa_elim_pass.cpp
   module.cpp
   set_spec_constant_default_value_pass.cpp
   optimizer.cpp
+  mem_pass.cpp
+  pass.cpp
   pass_manager.cpp
   strip_debug_info_pass.cpp
   types.cpp

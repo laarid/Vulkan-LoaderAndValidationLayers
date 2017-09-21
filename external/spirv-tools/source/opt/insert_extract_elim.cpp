@@ -18,13 +18,16 @@
 
 #include "iterator.h"
 
-static const int kSpvEntryPointFunctionId = 1;
-static const int kSpvExtractCompositeId = 0;
-static const int kSpvInsertObjectId = 0;
-static const int kSpvInsertCompositeId = 1;
-
 namespace spvtools {
 namespace opt {
+
+namespace {
+
+const uint32_t kExtractCompositeIdInIdx = 0;
+const uint32_t kInsertObjectIdInIdx = 0;
+const uint32_t kInsertCompositeIdInIdx = 1;
+
+} // anonymous namespace
 
 bool InsertExtractElimPass::ExtInsMatch(const ir::Instruction* extInst,
     const ir::Instruction* insInst) const {
@@ -58,17 +61,17 @@ bool InsertExtractElimPass::EliminateInsertExtract(ir::Function* func) {
     for (auto ii = bi->begin(); ii != bi->end(); ++ii) {
       switch (ii->opcode()) {
         case SpvOpCompositeExtract: {
-          uint32_t cid = ii->GetSingleWordInOperand(kSpvExtractCompositeId);
+          uint32_t cid = ii->GetSingleWordInOperand(kExtractCompositeIdInIdx);
           ir::Instruction* cinst = def_use_mgr_->GetDef(cid);
           uint32_t replId = 0;
           while (cinst->opcode() == SpvOpCompositeInsert) {
             if (ExtInsConflict(&*ii, cinst))
               break;
             if (ExtInsMatch(&*ii, cinst)) {
-              replId = cinst->GetSingleWordInOperand(kSpvInsertObjectId);
+              replId = cinst->GetSingleWordInOperand(kInsertObjectIdInIdx);
               break;
             }
-            cid = cinst->GetSingleWordInOperand(kSpvInsertCompositeId);
+            cid = cinst->GetSingleWordInOperand(kInsertCompositeIdInIdx);
             cinst = def_use_mgr_->GetDef(cid);
           }
           if (replId != 0) {
@@ -90,25 +93,33 @@ void InsertExtractElimPass::Initialize(ir::Module* module) {
 
   module_ = module;
 
-  // Initialize function and block maps
-  id2function_.clear();
-  for (auto& fn : *module_)
-    id2function_[fn.result_id()] = &fn;
-
   // Do def/use on whole module
   def_use_mgr_.reset(new analysis::DefUseManager(consumer(), module_));
+
+  // Initialize extension whitelist
+  InitExtensions();
 };
 
-Pass::Status InsertExtractElimPass::ProcessImpl() {
-  bool modified = false;
-
-  // Process all entry point functions.
-  for (auto& e : module_->entry_points()) {
-    ir::Function* fn =
-        id2function_[e.GetSingleWordOperand(kSpvEntryPointFunctionId)];
-    modified = EliminateInsertExtract(fn) || modified;
+bool InsertExtractElimPass::AllExtensionsSupported() const {
+  // If any extension not in whitelist, return false
+  for (auto& ei : module_->extensions()) {
+    const char* extName = reinterpret_cast<const char*>(
+        &ei.GetInOperand(0).words[0]);
+    if (extensions_whitelist_.find(extName) == extensions_whitelist_.end())
+      return false;
   }
+  return true;
+}
 
+Pass::Status InsertExtractElimPass::ProcessImpl() {
+  // Do not process if any disallowed extensions are enabled
+  if (!AllExtensionsSupported())
+    return Status::SuccessWithoutChange;
+  // Process all entry point functions.
+  ProcessFunction pfn = [this](ir::Function* fp) {
+    return EliminateInsertExtract(fp);
+  };
+  bool modified = ProcessEntryPointCallTree(pfn, module_);
   return modified ? Status::SuccessWithChange : Status::SuccessWithoutChange;
 }
 
@@ -118,6 +129,34 @@ InsertExtractElimPass::InsertExtractElimPass()
 Pass::Status InsertExtractElimPass::Process(ir::Module* module) {
   Initialize(module);
   return ProcessImpl();
+}
+
+void InsertExtractElimPass::InitExtensions() {
+  extensions_whitelist_.clear();
+  extensions_whitelist_.insert({
+    "SPV_AMD_shader_explicit_vertex_parameter",
+    "SPV_AMD_shader_trinary_minmax",
+    "SPV_AMD_gcn_shader",
+    "SPV_KHR_shader_ballot",
+    "SPV_AMD_shader_ballot",
+    "SPV_AMD_gpu_shader_half_float",
+    "SPV_KHR_shader_draw_parameters",
+    "SPV_KHR_subgroup_vote",
+    "SPV_KHR_16bit_storage",
+    "SPV_KHR_device_group",
+    "SPV_KHR_multiview",
+    "SPV_NVX_multiview_per_view_attributes",
+    "SPV_NV_viewport_array2",
+    "SPV_NV_stereo_view_rendering",
+    "SPV_NV_sample_mask_override_coverage",
+    "SPV_NV_geometry_shader_passthrough",
+    "SPV_AMD_texture_gather_bias_lod",
+    "SPV_KHR_storage_buffer_storage_class",
+    "SPV_KHR_variable_pointers",
+    "SPV_AMD_gpu_shader_int16",
+    "SPV_KHR_post_depth_coverage",
+    "SPV_KHR_shader_atomic_counter_ops",
+  });
 }
 
 }  // namespace opt

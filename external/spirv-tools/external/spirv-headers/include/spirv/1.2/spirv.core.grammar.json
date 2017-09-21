@@ -27,7 +27,7 @@
   "magic_number" : "0x07230203",
   "major_version" : 1,
   "minor_version" : 2,
-  "revision" : 1,
+  "revision" : 2,
   "instructions" : [
     {
       "opname" : "OpNop",
@@ -2410,7 +2410,7 @@
         { "kind" : "IdResult" },
         { "kind" : "IdScope",        "name" : "'Execution'" },
         { "kind" : "GroupOperation", "name" : "'Operation'" },
-        { "kind" : "IdRef",          "name" : "X" }
+        { "kind" : "IdRef",          "name" : "'X'" }
       ],
       "capabilities" : [ "Groups" ]
     },
@@ -2434,7 +2434,7 @@
         { "kind" : "IdResult" },
         { "kind" : "IdScope",        "name" : "'Execution'" },
         { "kind" : "GroupOperation", "name" : "'Operation'" },
-        { "kind" : "IdRef",          "name" : "X" }
+        { "kind" : "IdRef",          "name" : "'X'" }
       ],
       "capabilities" : [ "Groups" ]
     },
@@ -2446,7 +2446,7 @@
         { "kind" : "IdResult" },
         { "kind" : "IdScope",        "name" : "'Execution'" },
         { "kind" : "GroupOperation", "name" : "'Operation'" },
-        { "kind" : "IdRef",          "name" : "X" }
+        { "kind" : "IdRef",          "name" : "'X'" }
       ],
       "capabilities" : [ "Groups" ]
     },
@@ -2458,7 +2458,7 @@
         { "kind" : "IdResult" },
         { "kind" : "IdScope",        "name" : "'Execution'" },
         { "kind" : "GroupOperation", "name" : "'Operation'" },
-        { "kind" : "IdRef",          "name" : "X" }
+        { "kind" : "IdRef",          "name" : "'X'" }
       ],
       "capabilities" : [ "Groups" ]
     },
@@ -2470,7 +2470,7 @@
         { "kind" : "IdResult" },
         { "kind" : "IdScope",        "name" : "'Execution'" },
         { "kind" : "GroupOperation", "name" : "'Operation'" },
-        { "kind" : "IdRef",          "name" : "X" }
+        { "kind" : "IdRef",          "name" : "'X'" }
       ],
       "capabilities" : [ "Groups" ]
     },
@@ -3223,7 +3223,7 @@
         { "kind" : "IdResult" },
         { "kind" : "IdScope",        "name" : "'Execution'" },
         { "kind" : "GroupOperation", "name" : "'Operation'" },
-        { "kind" : "IdRef",          "name" : "X" }
+        { "kind" : "IdRef",          "name" : "'X'" }
       ],
       "capabilities" : [ "Groups" ]
     },
@@ -3247,7 +3247,7 @@
         { "kind" : "IdResult" },
         { "kind" : "IdScope",        "name" : "'Execution'" },
         { "kind" : "GroupOperation", "name" : "'Operation'" },
-        { "kind" : "IdRef",          "name" : "X" }
+        { "kind" : "IdRef",          "name" : "'X'" }
       ],
       "capabilities" : [ "Groups" ]
     },
@@ -3259,7 +3259,7 @@
         { "kind" : "IdResult" },
         { "kind" : "IdScope",        "name" : "'Execution'" },
         { "kind" : "GroupOperation", "name" : "'Operation'" },
-        { "kind" : "IdRef",          "name" : "X" }
+        { "kind" : "IdRef",          "name" : "'X'" }
       ],
       "capabilities" : [ "Groups" ]
     },
@@ -3271,7 +3271,7 @@
         { "kind" : "IdResult" },
         { "kind" : "IdScope",        "name" : "'Execution'" },
         { "kind" : "GroupOperation", "name" : "'Operation'" },
-        { "kind" : "IdRef",          "name" : "X" }
+        { "kind" : "IdRef",          "name" : "'X'" }
       ],
       "capabilities" : [ "Groups" ]
     },
@@ -3283,7 +3283,7 @@
         { "kind" : "IdResult" },
         { "kind" : "IdScope",        "name" : "'Execution'" },
         { "kind" : "GroupOperation", "name" : "'Operation'" },
-        { "kind" : "IdRef",          "name" : "X" }
+        { "kind" : "IdRef",          "name" : "'X'" }
       ],
       "capabilities" : [ "Groups" ]
     }
@@ -3908,6 +3908,11 @@
           "enumerant" : "PostDepthCoverage",
           "value" : 4446,
           "capabilities" : [ "SampleMaskPostDepthCoverage" ]
+        },
+        {
+          "enumerant" : "StencilRefReplacingEXT",
+          "value" : 5027,
+          "capabilities" : [ "StencilExportEXT" ]
         }
       ]
     },
@@ -5031,7 +5036,7 @@
         {
           "enumerant" : "SampleMask",
           "value" : 20,
-          "capabilities" : [ "SampleRateShading" ]
+          "capabilities" : [ "Shader" ]
         },
         {
           "enumerant" : "FragDepth",
@@ -5209,6 +5214,11 @@
         {
           "enumerant" : "BaryCoordPullModelAMD",
           "value" : 4998
+        },
+        {
+          "enumerant" : "FragStencilRefEXT",
+          "value" : 5014,
+          "capabilities" : [ "StencilExportEXT" ]
         },
         {
           "enumerant" : "ViewportMaskNV",
@@ -5669,14 +5679,14 @@
           "capabilities" : [ "VariablePointersStorageBuffer" ],
           "extensions" : [ "SPV_KHR_variable_pointers" ]
         },
-        {          "enumerant" : "AtomicStorageOps",
-          "value" : 4445,
-          "extensions" : [ "SPV_KHR_shader_atomic_counter_ops" ]
+        {
+            "enumerant": "AtomicStorageOps",
+            "value": 4445,
+            "extensions": [ "SPV_KHR_shader_atomic_counter_ops" ]
         },
         {
           "enumerant" : "SampleMaskPostDepthCoverage",
           "value" : 4447,
-          "capabilities" : [ "SampleRateShading" ],
           "extensions" : [ "SPV_KHR_post_depth_coverage" ]
         },
         {
@@ -5684,6 +5694,18 @@
           "value" : 5009,
           "capabilities" : [ "Shader" ],
           "extensions" : [ "SPV_AMD_texture_gather_bias_lod" ]
+        },
+        {
+          "enumerant" : "StencilExportEXT",
+          "value" : 5013,
+          "capabilities" : [ "Shader" ],
+          "extensions" : [ "SPV_EXT_shader_stencil_export" ]
+        },
+        {
+          "enumerant" : "ImageReadWriteLodAMD",
+          "value" : 5015,
+          "capabilities" : [ "Shader" ],
+          "extensions" : [ "SPV_AMD_shader_image_load_store_lod" ]
         },
         {
           "enumerant" : "SampleMaskOverrideCoverageNV",
@@ -5696,6 +5718,12 @@
           "value" : 5251,
           "capabilities" : [ "Geometry" ],
           "extensions" : [ "SPV_NV_geometry_shader_passthrough" ]
+        },
+        {
+          "enumerant" : "ShaderViewportIndexLayerEXT",
+          "value" : 5254,
+          "capabilities" : [ "MultiViewport" ],
+          "extensions" : [ "SPV_EXT_shader_viewport_index_layer" ]
         },
         {
           "enumerant" : "ShaderViewportIndexLayerNV",

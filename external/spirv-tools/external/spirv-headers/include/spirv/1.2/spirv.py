@@ -42,7 +42,7 @@
 spv = {
     'MagicNumber' : 0x07230203,
     'Version' : 0x00010200,
-    'Revision' : 1,
+    'Revision' : 2,
     'OpCodeMask' : 0xffff,
     'WordCountShift' : 16,
 
@@ -117,6 +117,7 @@ spv = {
         'LocalSizeId' : 38,
         'LocalSizeHintId' : 39,
         'PostDepthCoverage' : 4446,
+        'StencilRefReplacingEXT' : 5027,
     },
 
     'StorageClass' : {
@@ -426,6 +427,7 @@ spv = {
         'BaryCoordSmoothCentroidAMD' : 4996,
         'BaryCoordSmoothSampleAMD' : 4997,
         'BaryCoordPullModelAMD' : 4998,
+        'FragStencilRefEXT' : 5014,
         'ViewportMaskNV' : 5253,
         'SecondaryPositionNV' : 5257,
         'SecondaryViewportMaskNV' : 5258,
@@ -619,8 +621,11 @@ spv = {
         'AtomicStorageOps' : 4445,
         'SampleMaskPostDepthCoverage' : 4447,
         'ImageGatherBiasLodAMD' : 5009,
+        'StencilExportEXT' : 5013,
+        'ImageReadWriteLodAMD' : 5015,
         'SampleMaskOverrideCoverageNV' : 5249,
         'GeometryShaderPassthroughNV' : 5251,
+        'ShaderViewportIndexLayerEXT' : 5254,
         'ShaderViewportIndexLayerNV' : 5254,
         'ShaderViewportMaskNV' : 5255,
         'ShaderStereoViewNV' : 5259,
