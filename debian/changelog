@@ -1,10 +1,10 @@
-vulkan (1.0.61.1+dfsg1-1) UNRELEASED; urgency=medium
+vulkan (1.0.61.1+dfsg1-1) unstable; urgency=medium
 
   * New upstream release.
   * patches: Dropped install-vk-layer-dispatch-table-h.diff which is
     upstream, refresh use-mxgot-for-mips64.patch.
 
- -- Timo Aaltonen <tjaalton@debian.org>  Thu, 21 Sep 2017 15:16:32 +0300
+ -- Timo Aaltonen <tjaalton@debian.org>  Thu, 21 Sep 2017 15:28:57 +0300
 
 vulkan (1.0.54.0+dfsg1-1) unstable; urgency=medium
 
