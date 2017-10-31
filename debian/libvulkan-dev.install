@@ -1,2 +1,6 @@
 usr/include/vulkan
 usr/lib/*/libvulkan.so
+usr/lib/*/libVkLayer*.so
+usr/lib/*/pkgconfig/vulkan.pc
+usr/share/vulkan/explicit_layer.d
+usr/share/vulkan/implicit_layer.d

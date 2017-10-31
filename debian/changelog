@@ -1,15 +1,67 @@
-vulkan (1.0.42.0+dfsg1-1+laarid+deb9u1) testing; urgency=low
+vulkan (1.0.61.1+dfsg1-1) unstable; urgency=medium
 
-  * ci: ensure build dir write access inside container
-  * debian: first buster release
+  * New upstream release.
+  * patches: Dropped install-vk-layer-dispatch-table-h.diff which is
+    upstream, refresh use-mxgot-for-mips64.patch.
 
- -- You-Sheng Yang <vicamo@gmail.com>  Fri, 7 Jul 2017 15:08:22 +0800
+ -- Timo Aaltonen <tjaalton@debian.org>  Thu, 21 Sep 2017 15:28:57 +0300
 
-vulkan (1.0.42.0+dfsg1-1+laarid) experimental; urgency=low
+vulkan (1.0.54.0+dfsg1-1) unstable; urgency=medium
 
-  * build libvkjson
+  * New upstream release.
 
- -- You-Sheng Yang <vicamo@gmail.com>  Tue, 11 Apr 2017 15:41:32 +0800
+ -- Timo Aaltonen <tjaalton@debian.org>  Mon, 24 Jul 2017 12:38:14 +0300
+
+vulkan (1.0.51.0+dfsg1-1) unstable; urgency=medium
+
+  * New upstream release.
+    - smoke-check-for-installed-so.diff: Dropped, upstream.
+  * install-vk-layer-dispatch-table-h.diff: Put
+    vk_layer_dispatch_table.h in include/vulkan. (LP: #1692244)
+  * Rename vulkan-smoke to vulkan-smoketest.
+  * rules: Fix glslang build.
+  * copyright: Local copy of spirv.hpp got dropped, so drop it from
+    copyright too.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Mon, 03 Jul 2017 12:26:58 +0300
+
+vulkan (1.0.46.0+dfsg3-1) experimental; urgency=medium
+
+  * rules: Fix glslang/spir-v build to always run make.
+  * get-external.sh, rules: Fix the order of spirv-tools/-headers, and
+    rebuild the tarball. Thanks, Philipp Zabel!
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Sat, 20 May 2017 00:11:43 +0300
+
+vulkan (1.0.46.0+dfsg2-1) experimental; urgency=medium
+
+  * Build libVkLayer.
+    - debian/SPIRV/spirv.hpp: Dropped
+    - debian/get-external.sh: Add a script to update glslang and SPIR-V
+    - rules: Modify gentarball target
+    - rules: Modify to build glslang & spirv first
+    - libvulkan-dev.install, dirs, rules: Install json files, provide
+      empty systemwide dirs
+  * Install smoke demo.
+    - demos-dont-build-tri-or-cube-or-smoke.diff ->
+      demos-dont-build-cube.diff: Renamed and updated
+    - smoke-check-for-installed-so.diff: Check for libvulkan.so.1 instead
+      of .so
+  * rules: Support parallel builds.
+  * Add README.source and a reminder to get-external.sh to run git add.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Fri, 12 May 2017 18:57:44 +0300
+
+vulkan (1.0.46.0+dfsg1-1) experimental; urgency=medium
+
+  * New upstream release.
+  * trim-build.diff, disable-mir.diff, rules: Use clang build options
+    instead of patching CMakeFile.txt.
+  * rules: Set build type to 'Release'.
+  * patches: Refreshed.
+  * dev.install: Add pkgconfig file.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Tue, 09 May 2017 14:21:14 +0300
 
 vulkan (1.0.42.0+dfsg1-1) experimental; urgency=medium
 

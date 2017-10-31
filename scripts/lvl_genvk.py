@@ -20,8 +20,9 @@ from generator import write
 from cgenerator import CGeneratorOptions, COutputGenerator
 # LoaderAndValidationLayer Generator Modifications
 from threading_generator import  ThreadGeneratorOptions, ThreadOutputGenerator
-from parameter_validation_generator import ParamCheckerGeneratorOptions, ParamCheckerOutputGenerator
+from parameter_validation_generator import ParameterValidationGeneratorOptions, ParameterValidationOutputGenerator
 from unique_objects_generator import UniqueObjectsGeneratorOptions, UniqueObjectsOutputGenerator
+from object_tracker_generator import ObjectTrackerGeneratorOptions, ObjectTrackerOutputGenerator
 from dispatch_table_helper_generator import DispatchTableHelperOutputGenerator, DispatchTableHelperOutputGeneratorOptions
 from helper_file_generator import HelperFileOutputGenerator, HelperFileOutputGeneratorOptions
 from loader_extension_generator import LoaderExtensionOutputGenerator, LoaderExtensionGeneratorOptions
@@ -121,11 +122,12 @@ def makeGenOpts(extensions = [], removeExtensions = [], protect = True, director
             alignFuncParam    = 48)
         ]
 
+
     # Options for parameter validation layer
-    genOpts['parameter_validation.h'] = [
-          ParamCheckerOutputGenerator,
-          ParamCheckerGeneratorOptions(
-            filename          = 'parameter_validation.h',
+    genOpts['parameter_validation.cpp'] = [
+          ParameterValidationOutputGenerator,
+          ParameterValidationGeneratorOptions(
+            filename          = 'parameter_validation.cpp',
             directory         = directory,
             apiname           = 'vulkan',
             profile           = None,
@@ -147,6 +149,27 @@ def makeGenOpts(extensions = [], removeExtensions = [], protect = True, director
           UniqueObjectsOutputGenerator,
           UniqueObjectsGeneratorOptions(
             filename          = 'unique_objects_wrappers.h',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = allVersions,
+            emitversions      = allVersions,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensions,
+            removeExtensions  = removeExtensions,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFeature    = False,
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48)
+        ]
+
+    # Options for object_tracker layer
+    genOpts['object_tracker.cpp'] = [
+          ObjectTrackerOutputGenerator,
+          ObjectTrackerGeneratorOptions(
+            filename          = 'object_tracker.cpp',
             directory         = directory,
             apiname           = 'vulkan',
             profile           = None,
@@ -356,6 +379,51 @@ def makeGenOpts(extensions = [], removeExtensions = [], protect = True, director
             alignFuncParam    = 48,
             helper_file_type  = 'safe_struct_source')
         ]
+
+    # Helper file generator options for vk_object_types.h
+    genOpts['vk_object_types.h'] = [
+          HelperFileOutputGenerator,
+          HelperFileOutputGeneratorOptions(
+            filename          = 'vk_object_types.h',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = allVersions,
+            emitversions      = allVersions,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensions,
+            removeExtensions  = removeExtensions,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFeature    = False,
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48,
+            helper_file_type  = 'object_types_header')
+        ]
+
+    # Helper file generator options for extension_helper.h
+    genOpts['vk_extension_helper.h'] = [
+          HelperFileOutputGenerator,
+          HelperFileOutputGeneratorOptions(
+            filename          = 'vk_extension_helper.h',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = allVersions,
+            emitversions      = allVersions,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensions,
+            removeExtensions  = removeExtensions,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFeature    = False,
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48,
+            helper_file_type  = 'extension_helper_header')
+        ]
+
 
 # Generate a target based on the options in the matching genOpts{} object.
 # This is encapsulated in a function so it can be profiled and/or timed.
