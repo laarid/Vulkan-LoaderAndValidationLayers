@@ -89,10 +89,8 @@ before_install:
 
   - |
     if [[ "$VULKAN_BUILD_TARGET" == "LAARID" ]]; then \
-      echo "deb http://archive.ubuntu.com/ubuntu/ devel universe" | \
-        sudo tee /etc/apt/sources.list.d/devel.list; \
-      sudo apt-get update; \
-      sudo apt-get install --no-install-recommends binfmt-support qemu-user-static; \
+      docker run --rm --privileged vicamo/binfmt-qemu:latest; \
+      cat /proc/sys/fs/binfmt_misc/qemu-*; \
       sudo docker run --detach --interactive --tty \
         --name test_container \
         --volume ${TRAVIS_BUILD_DIR%${TRAVIS_REPO_SLUG}}:${TRAVIS_BUILD_DIR%${TRAVIS_REPO_SLUG}} \
