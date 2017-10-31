@@ -69,10 +69,10 @@ cache:
     - external
     - build-android/external
 
-branches:
-  only:
-  - master
-  - release
+addons:
+  apt:
+    packages:
+    - dpkg-dev
 
 before_install:
   # Install the appropriate Linux packages.
@@ -90,12 +90,13 @@ before_install:
     if [[ "$VULKAN_BUILD_TARGET" == "LAARID" ]]; then \
       docker run --rm --privileged vicamo/binfmt-qemu:latest; \
       cat /proc/sys/fs/binfmt_misc/qemu-*; \
+      export JOB_SUITE=$(dpkg-parsechangelog | grep ^Distribution: | awk '{print $2}'); \
       docker run --detach --tty \
         --name test_container \
         --volume ${TRAVIS_BUILD_DIR%${TRAVIS_REPO_SLUG}}:${TRAVIS_BUILD_DIR%${TRAVIS_REPO_SLUG}} \
         --workdir ${TRAVIS_BUILD_DIR} \
         --add-host dl.bintray.com:$(nslookup dl.bintray.com | grep -m1 -A1 Name: | grep Address: | awk '{print $2}') \
-        laarid/devel:${JOB_ARCH} \
+        laarid/devel:${JOB_SUITE}-${JOB_ARCH} \
         /bin/bash; \
     fi
 
@@ -129,29 +130,29 @@ script:
 before_deploy:
 - sudo chown -R $(id -u):$(id -g) ${TRAVIS_BUILD_DIR%${TRAVIS_REPO_SLUG}}
 - |
-  cat debian/bintray.json.in | \
-    sed -e "s#@BINTRAY_PACKAGE@#$(cat debian/control | grep ^Source: | awk '{print $2}')#g" \
+  cat .bintray.json.in | \
+    sed -e "s#@BINTRAY_PACKAGE@#$(dpkg-parsechangelog | grep ^Source: | awk '{print $2}')#g" \
         -e "s#@BINTRAY_USER@#${BINTRAY_USER}#g" \
         -e "s#@BINTRAY_REPO@#${BINTRAY_REPO}#g" \
         -e "s#@BINTRAY_DESC@#${BINTRAY_DESC}#g" \
         -e "s#@GITHUB_REPO@#${TRAVIS_REPO_SLUG}#g" \
-        -e "s,@BINTRAY_VERSION@,$(cat debian/changelog | head -n 1 | sed 's,.*(\(.*\)).*,\1,'),g" \
-        -e "s#@BINTRAY_RELEASE_DATE@#$(cat debian/changelog | grep -m 1 '^ -- ' | sed 's,^.*  ,,')#g" \
+        -e "s#@BINTRAY_VERSION@#$(dpkg-parsechangelog | grep ^Version: | awk '{print $2}')#g" \
+        -e "s#@BINTRAY_RELEASE_DATE@#$(date -Iseconds --date="$(${DOCKER_EXEC} dpkg-parsechangelog | grep ^Date: | cut -d ' ' -f 2-)")#g" \
         -e "s#@BINTRAY_OUTDIR@#$(dirname ${TRAVIS_BUILD_DIR})#g" \
-        -e "s#@BINTRAY_POOLABBR@#$(cat debian/control | grep ^Source: | awk '{print $2}' | cut -c1)#g" \
-        -e "s#@BINTRAY_SUITE@#$(${DOCKER_EXEC} cat /etc/apt/sources.list | grep -m 1 '^deb ' | awk '{print $3}')#g" \
+        -e "s#@BINTRAY_POOLABBR@#$(dpkg-parsechangelog | grep ^Source: | awk '{print $2}' | cut -c1)#g" \
+        -e "s#@BINTRAY_SUITE@#${JOB_SUITE}#g" \
         -e "s#@BINTRAY_COMPONENT@#${BINTRAY_COMPONENT}#g" \
         -e "s#@BINTRAY_ARCH@#${JOB_ARCH}#g" | \
-    tee debian/bintray.json
+    tee bintray.json
 
 deploy:
 - provider: bintray
-  file: debian/bintray.json
+  file: bintray.json
   user: vicamo
   key:
     secure: "DQ4blkLhZt733kHkZwzjwYzFr+gcqY6cri5+whKQpMd+DVJj5kX2zhTI2L+O+eUIsyK6jr/ZD3K4VjB/+wj2Odkvz+wBNMI5YZ5F8lIJ/ltdV8NWcAJap41F1n2Nxk9yJ/G6KkX3lSOG83RlRqgqZKFfJMIlE26fwf24B/je5zzzVozaxZLOM9z//bLofL7izX7gECIQIkUkUweN1HgWSiGerJbYGFWIqf6FwKB2TKV4v4UMJIuZ6hxvN9cTSIYOu43liT9ya8e/8r+YRXraSoasqmqLGqDfJly5gT+mZQla3lNS8CHlqvzxLDEjjIS6WR30kW+hCMAUQxVkatPck+7XgMCjSN2VkkcZDN1TmB0bAKH5MCQX20iPOBEW8vB4zgPRxf+xGna3RqujbujGw7g1pzsIM3CIiXKshV4Y1ZaFXCCnbHKO+kWwcESFBzWuDVB2VjGUTe3hRQ0qO9zLZLfjdyShGLGVI/sn6NzwD8qL589w3KHt5GiEd6zGWDfM1T1GlcHU/T/ILFuX56K3tCXM3X1FsUyixBNbE9BLHp6Jb1hk0h8ooKcx+tKUmYu60j9NHiDApWDnjhhacpSzdH8JTCVeAS1hiukhsM8Vki5vnW4aYyFbpUMBv15jwgWq55DrD4TqUJDIWagFggmzYrmHweayczYwMGvnIrTXiGY="
   on:
-    branch: release
+    tags: true
     condition: $VULKAN_BUILD_TARGET = LAARID
 
 notifications:
