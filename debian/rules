@@ -21,12 +21,13 @@ override_dh_clean:
 		external/spirv-tools/build
 
 build_spirv:
-	mkdir -p external/glslang/build \
-		external/spirv-tools/build
-	cd external/glslang/build && \
-	(cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=./install -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON ..; make $(MAKE_FLAGS); make install)
-	cd external/spirv-tools/build/ && \
-	(cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON ..; make $(MAKE_FLAGS))
+	(dh_auto_configure --sourcedirectory=external/glslang/ --builddirectory=external/glslang/build/ -- \
+		-DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=./install -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON; \
+		make -C external/glslang/build/ $(MAKE_FLAGS); \
+		make -C external/glslang/build/ install)
+	(dh_auto_configure --sourcedirectory=external/spirv-tools/ --builddirectory=external/spirv-tools/build/ -- \
+		-DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON; \
+		make -C external/spirv-tools/build/ $(MAKE_FLAGS))
 
 override_dh_auto_configure: build_spirv
 	dh_auto_configure -- \
@@ -47,7 +48,9 @@ override_dh_auto_install:
 	mv debian/tmp/etc/vulkan/explicit_layer.d/*.json \
 	   debian/tmp/usr/share/vulkan/explicit_layer.d
 
-	mv debian/tmp/usr/bin/smoketest debian/tmp/usr/bin/vulkan-smoketest
+	if [ -e debian/tmp/usr/bin/smoketest ]; then \
+		mv debian/tmp/usr/bin/smoketest debian/tmp/usr/bin/vulkan-smoketest; \
+	fi
 
 override_dh_install:
 	dh_install --fail-missing
