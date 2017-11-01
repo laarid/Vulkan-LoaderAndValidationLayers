@@ -56,6 +56,8 @@ matrix:
     - os: linux
       compiler: clang
       env: VULKAN_BUILD_TARGET=LINUX
+    # LAARiD builds
+    - env: VULKAN_BUILD_TARGET=LAARID JOB_ARCH=mips64el
 
 android:
   components:
