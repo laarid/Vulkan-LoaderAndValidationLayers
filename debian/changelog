@@ -1,3 +1,9 @@
+vulkan (1.0.61.1+dfsg1-1+buster1) buster; urgency=medium
+
+  * laarid: buster release
+
+ -- You-Sheng Yang <vicamo@gmail.com>  Tue, 1 Nov 2017 00:09:30 +0800
+
 vulkan (1.0.61.1+dfsg1-1) unstable; urgency=medium
 
   * New upstream release.
